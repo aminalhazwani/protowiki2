@@ -12,7 +12,7 @@ just orients you.
   [`protowiki-components`](.agents/skills/protowiki-components/SKILL.md)
   for the catalogue. Composables in `src/composables/`. Theming logic
   in `src/lib/`. Styles in `src/styles/`.
-- **`.agents/skills/`** — the *single canonical home* for non-code
+- **`.agents/skills/`** — the _single canonical home_ for non-code
   material: how to use Codex, how to fetch Wikipedia data, how the
   prototyping workflow works, how to deploy. Each skill is an
   [Agent Skill](https://agentskills.io/specification): a `SKILL.md` with
@@ -41,7 +41,7 @@ Skills in `.agents/skills/` come in two flavours, distinguished by name:
 
 - **Portable, environment-agnostic skills** — `codex-*`, `wiki-*`.
   These describe the upstream design system and the Wikimedia APIs
-  *without* assuming ProtoWiki. They should be safely copyable into
+  _without_ assuming ProtoWiki. They should be safely copyable into
   another repo, or consumable on their own. ProtoWiki-specific notes in
   these skills live in a clearly-marked trailing **Inside ProtoWiki**
   section, or in a `references/protowiki-integration.md` file beside the
@@ -49,7 +49,7 @@ Skills in `.agents/skills/` come in two flavours, distinguished by name:
 - **ProtoWiki integration skills** — `protowiki-*`. These are the home
   for repo-specific paths, components, scripts, and wiring. They
   reference the portable skills above and tell you how to apply them
-  *in this repo*.
+  _in this repo_.
 
 If you find ProtoWiki-specific content (`src/…` paths, ProtoWiki
 component names, repo-only scripts) leaking into a `codex-*` /
@@ -60,39 +60,41 @@ trailing **Inside ProtoWiki** section.
 
 ### ProtoWiki workflow
 
-| Skill | What it covers |
-| --- | --- |
-| [`protowiki-getting-started`](.agents/skills/protowiki-getting-started/SKILL.md) | Orientation: what ProtoWiki is, the stack, where everything lives |
-| [`protowiki-create-prototype`](.agents/skills/protowiki-create-prototype/SKILL.md) | Adding a new prototype via file-based routing — zero registration |
-| [`protowiki-components`](.agents/skills/protowiki-components/SKILL.md) | Shipped Vue components: wrappers, chrome, article surfaces, search |
-| [`protowiki-skins`](.agents/skills/protowiki-skins/SKILL.md) | Vector 2022 (desktop) vs Minerva (mobile); per-component skin overrides |
-| [`protowiki-theme`](.agents/skills/protowiki-theme/SKILL.md) | Light / dark theming; per-component theme overrides |
-| [`protowiki-deploy`](.agents/skills/protowiki-deploy/SKILL.md) | `npm run build`, GitHub Pages base path, SPA 404 redirect, CI workflow |
+| Skill                                                                              | What it covers                                                          |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`protowiki-getting-started`](.agents/skills/protowiki-getting-started/SKILL.md)   | Orientation: what ProtoWiki is, the stack, where everything lives       |
+| [`protowiki-create-prototype`](.agents/skills/protowiki-create-prototype/SKILL.md) | Adding a new prototype via file-based routing — zero registration       |
+| [`protowiki-components`](.agents/skills/protowiki-components/SKILL.md)             | Shipped Vue components: wrappers, chrome, article surfaces, search      |
+| [`protowiki-skins`](.agents/skills/protowiki-skins/SKILL.md)                       | Vector 2022 (desktop) vs Minerva (mobile); per-component skin overrides |
+| [`protowiki-theme`](.agents/skills/protowiki-theme/SKILL.md)                       | Light / dark theming; per-component theme overrides                     |
+| [`protowiki-deploy`](.agents/skills/protowiki-deploy/SKILL.md)                     | `npm run build`, GitHub Pages base path, SPA 404 redirect, CI workflow  |
 
 ### Codex (design system)
 
-| Skill | What it covers |
-| --- | --- |
-| [`codex-usage`](.agents/skills/codex-usage/SKILL.md) | Umbrella: how to use Codex anywhere — components first, then tokens, then icons; when (rarely) to write custom CSS; matching Figma fidelity |
-| [`codex-tokens`](.agents/skills/codex-tokens/SKILL.md) | Codex CSS custom properties (color, spacing, type, dark mode) |
-| [`codex-components`](.agents/skills/codex-components/SKILL.md) | Every Codex Vue component shipped via `@wikimedia/codex` |
-| [`codex-icons`](.agents/skills/codex-icons/SKILL.md) | The `@wikimedia/codex-icons` catalogue and usage |
-| [`codex-design-principles`](.agents/skills/codex-design-principles/SKILL.md) | Familiar / useful / accessible / easy / joyful + minimise chrome |
+| Skill                                                                        | What it covers                                                                                                                              |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`codex-usage`](.agents/skills/codex-usage/SKILL.md)                         | Umbrella: how to use Codex anywhere — components first, then tokens, then icons; when (rarely) to write custom CSS; matching Figma fidelity |
+| [`codex-tokens`](.agents/skills/codex-tokens/SKILL.md)                       | Codex CSS custom properties (color, spacing, type, dark mode)                                                                               |
+| [`codex-components`](.agents/skills/codex-components/SKILL.md)               | Every Codex Vue component shipped via `@wikimedia/codex`                                                                                    |
+| [`codex-icons`](.agents/skills/codex-icons/SKILL.md)                         | The `@wikimedia/codex-icons` catalogue and usage                                                                                            |
+| [`codex-design-principles`](.agents/skills/codex-design-principles/SKILL.md) | Familiar / useful / accessible / easy / joyful + minimise chrome                                                                            |
 
 ### Real Wikimedia data (portable)
 
-| Skill | What it covers |
-| --- | --- |
-| [`wiki-apis`](.agents/skills/wiki-apis/SKILL.md) | REST API + Action API + etiquette |
-| [`wiki-signals`](.agents/skills/wiki-signals/SKILL.md) | Catalog of signals (inference, analytics, links, curation, attribution, edit suggestions) |
-| [`wiki-snapshot-data`](.agents/skills/wiki-snapshot-data/SKILL.md) | Snapshotting article HTML and skin CSS — universal pattern |
+| Skill                                                                        | What it covers                                                                                |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`wiki-apis`](.agents/skills/wiki-apis/SKILL.md)                             | REST API + Action API + etiquette                                                             |
+| [`wiki-signals`](.agents/skills/wiki-signals/SKILL.md)                       | Catalog of signals (inference, analytics, links, curation, attribution, edit suggestions)     |
+| [`wiki-snapshot-data`](.agents/skills/wiki-snapshot-data/SKILL.md)           | Snapshotting article HTML and skin CSS — universal pattern                                    |
 | [`protowiki-snapshot-data`](.agents/skills/protowiki-snapshot-data/SKILL.md) | ProtoWiki integration: `public/snapshots/`, `src/styles/wiki-content/`, `Article` consumption |
 
 Edit Check-style suggestion overlays are split between two skills: see
-[`wiki-signals` → `suggestions.md`](.agents/skills/wiki-signals/references/suggestions.md)
+[`wiki-signals` → `edit-suggestions.md`](.agents/skills/wiki-signals/edit-suggestions.md)
 for simulating the stream and
 [`protowiki-components` → `edit-suggestions.md`](.agents/skills/protowiki-components/references/edit-suggestions.md)
 for rendering suggestions beside your editing surface.
+[`wiki-signals/references/`](.agents/skills/wiki-signals/references/README.md)
+mirrors [FakeMediaWiki `wiki-signals`](https://github.com/TodePond/FakeMediaWiki/tree/main/wiki-signals) (carbon-copy Markdown).
 
 ## Conventions
 

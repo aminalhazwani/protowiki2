@@ -9,7 +9,7 @@ ProtoWiki does not ship a bundled VE stand-in; fork **[Bárbara Martínez Calvo�
 
 This file is about the *consumer* side. For *where the suggestions
 come from* (fixtures, rule-based generation, Lift Wing inference) see
-[`wiki-signals/references/suggestions.md`](../../wiki-signals/references/suggestions.md).
+[`wiki-signals/edit-suggestions.md`](../../wiki-signals/edit-suggestions.md).
 
 The two responsibilities meet at one contract: the `SuggestionFile` /
 `EditSuggestion` types below.
@@ -263,7 +263,7 @@ overlapping ranges. The fidelity bar is "the demo is convincing", not
 - **Accept** — remove from the list; optionally apply to body.
 - **Dismiss** — remove from the list; optionally remember per-page in
   `localStorage` (see
-  [`wiki-signals/references/suggestions.md`](../../wiki-signals/references/suggestions.md)
+  [`wiki-signals/edit-suggestions.md`](../../wiki-signals/edit-suggestions.md)
   for the dismiss-state recipe).
 - **Explain** — expand the card to show `detail`.
 - **Multi-suggestion summary** — banner above publish:
@@ -280,6 +280,6 @@ unknown types — the field is open by design.
 ## See also
 
 - [`wiki-signals`](../../wiki-signals/SKILL.md)
-  (`suggestions.md`) — the data side: how to generate / fake the
+  (`edit-suggestions.md`) — the data side: how to generate / fake the
   suggestion stream.
 - [`editors.md`](editors.md) — article template + suggestion-mode references (Bárbara’s repos).

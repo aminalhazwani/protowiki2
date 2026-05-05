@@ -61,7 +61,7 @@ convention (matching the article URL slug works well):
 Loaded at runtime via `fetch`.
 
 The committed
-[`assets/example-suggestions.json`](../assets/example-suggestions.json)
+[`assets/example-suggestions.json`](assets/example-suggestions.json)
 is a worked example you can copy.
 
 Treat the JSON as production-grade — review wording carefully because
@@ -160,7 +160,7 @@ ML models. Endpoints used in prototyping:
 
 Use a descriptive `User-Agent` header. Calls are rate-limited; cache
 predictions per revision id. See
-[`wiki-apis/references/etiquette.md`](../../wiki-apis/references/etiquette.md).
+[`wiki-apis/references/etiquette.md`](../wiki-apis/references/etiquette.md).
 
 ## Storing the simulated stream
 
@@ -197,14 +197,14 @@ Filter the loaded suggestions through the set on render.
 - **The real Edit Check pipeline** (LLM training, signal triage,
   configuration in `MediaWiki:Editcheck-config.json`). Out of scope.
 - **Hooking suggestions into the real upstream VE.** Out of scope here;
-  prototype against **[Bárbara Martínez Calvo’s repos](https://github.com/bmartinezcalvo/wikipedia-article-template)** or FakeMediaWiki instead — see [`protowiki-components` → `editors.md`](../../protowiki-components/references/editors.md).
+  prototype against **[Bárbara Martínez Calvo’s repos](https://github.com/bmartinezcalvo/wikipedia-article-template)** or FakeMediaWiki instead — see [`protowiki-components` → `editors.md`](../protowiki-components/references/editors.md).
 - **Rendering the suggestions inside the editor surface.** That's a
   per-environment concern — see "Inside ProtoWiki" below for
   ProtoWiki's version.
 
 ## See also
 
-- [`protowiki-components` → `editors.md`](../../protowiki-components/references/editors.md)
+- [`protowiki-components` → `editors.md`](../protowiki-components/references/editors.md)
   — Bárbara’s article template + suggestion-mode repos when you need production-shaped edit UX outside ProtoWiki.
 - fakewiki's
   [`docs/VE_SUGGESTION_TYPES_REPORT.md`](https://github.com/TodePond/FakeMediaWiki/blob/main/packages/fakewiki/docs/VE_SUGGESTION_TYPES_REPORT.md)
@@ -217,9 +217,9 @@ ProtoWiki uses this skill's mocking approach with these specifics:
 - Fixture path: `public/edit-suggestions/{slug}.json`, where `slug`
   matches the article URL slug — the same convention as
   `public/snapshots/` (see
-  [`wiki-snapshot-data`](../../wiki-snapshot-data/SKILL.md) and the
+  [`wiki-snapshot-data`](../wiki-snapshot-data/SKILL.md) and the
   ProtoWiki snapshot integration skill).
 - `localStorage` key: `protowiki:edit-suggestions:dismissed:${slug}`.
 - Consumer contract (`EditSuggestion` shape, `SuggestionCard`,
   side-by-side layout, at-publish interception, "apply" semantics):
-  [`protowiki-components/references/edit-suggestions.md`](../../protowiki-components/references/edit-suggestions.md).
+  [`protowiki-components/references/edit-suggestions.md`](../protowiki-components/references/edit-suggestions.md).
