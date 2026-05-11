@@ -36,6 +36,7 @@ layout columns**: anything goes inside the chrome.
 | `dir` | `'ltr' \| 'rtl'` | `undefined` | Writing direction; sets `dir` on the wrapper root. Pass explicitly — we don't infer it from `lang` |
 | `skin` | `'desktop' \| 'mobile'` | `undefined` | Local skin override |
 | `theme` | `'light' \| 'dark'` | `undefined` | Local theme override |
+| `showLastEditedNotice` | `boolean` | `true` | Passed through to **`ChromeFooter`**: mock **last edited** notice — **desktop:** Vector-style timestamp + CC licence lines; **mobile:** Minerva strip above the grey well. Set **`false`** for special-page–style shells |
 
 `lang` and `dir` are the usual top-of-tree handles: primitives inside don't need their
 own `lang` prop because the value is inherited via the DOM. **`Article`** also accepts
@@ -49,7 +50,7 @@ own `lang` prop because the value is inherited via the DOM. **`Article`** also a
 | `#header` | `<ChromeHeader>` | Replace the entire header |
 | `#search` | `<SearchBar />` | Override or remove (e.g. empty `#search` slot) — **default** is live `SearchBar` from `ChromeWrapper` |
 | `#nav-prefix` | Username link (`chrome-header__username-link` → Meta) | Override or clear — **default** is a fake "Username" link before the icon cluster (desktop) |
-| `#footer` | `<ChromeFooter>` | Replace the entire footer |
+| `#footer` | `<ChromeFooter>` (+ `showLastEditedNotice` from **`ChromeWrapper`**) | Replace the entire footer |
 
 ### Example
 
@@ -94,7 +95,8 @@ full-width content area. **No chrome, no columns.**
 ### Example
 
 ```vue
-<ChromeWrapper>
+<!-- Omit mock last-edited notice (typical special pages): -->
+<ChromeWrapper :show-last-edited-notice="false">
   <SpecialPageWrapper title="Suggested edits">
     <template #actions>
       <CdxButton action="progressive" weight="primary">Pick task</CdxButton>

@@ -35,6 +35,16 @@ Place experiments as siblings before or after `<Article>` in the default slot.
 </ChromeWrapper>
 ```
 
+Special pages usually **omit** the mock last-edited notice (desktop block **and** mobile strip) — mirror **`src/prototypes/special-page-template/index.vue`**:
+
+```vue
+<ChromeWrapper :show-last-edited-notice="false">
+  <SpecialPageWrapper title="…">
+    <!-- … -->
+  </SpecialPageWrapper>
+</ChromeWrapper>
+```
+
 ## Bare canvas with chrome (no columns)
 
 ```vue

@@ -20,16 +20,23 @@ interface Props {
   skin?: Skin
   /** Local theme override for this subtree. Sets `data-theme` on the root. */
   theme?: Theme
+  /**
+   * Mock article “last edited” notice in the footer: Vector-style lines on **desktop**,
+   * Minerva strip on **mobile**. Set **false** on special-page–style shells.
+   */
+  showLastEditedNotice?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   skin: undefined,
   theme: undefined,
+  showLastEditedNotice: true,
 })
 
 const effectiveSkin = computed<Skin>(() => props.skin ?? globalSkin.value)
 const effectiveTheme = computed<Theme>(() => props.theme ?? globalTheme.value)
 const isDesktop = computed(() => effectiveSkin.value === 'desktop')
+const showLastEditedMobile = computed(() => props.showLastEditedNotice && !isDesktop.value)
 
 const links = [
   {
@@ -82,11 +89,43 @@ const mobileFooterLinks = [
 </script>
 
 <template>
-  <footer class="chrome-footer" :data-skin="effectiveSkin" :data-theme="effectiveTheme">
+  <footer
+    class="chrome-footer"
+    :class="{ 'chrome-footer--no-last-edited-notice': !isDesktop && !showLastEditedMobile }"
+    :data-skin="effectiveSkin"
+    :data-theme="effectiveTheme"
+  >
     <slot>
       <!-- Desktop / tablet (Vector): centred column + prototype note -->
       <template v-if="isDesktop">
         <div class="chrome-footer__inner">
+          <template v-if="showLastEditedNotice">
+            <p class="chrome-footer__last-edited-desktop">
+              This page was last edited on 8 May 2026, at 04:34.
+            </p>
+            <p class="chrome-footer__license-desktop">
+              Text is available under the
+              <a
+                href="https://creativecommons.org/licenses/by-sa/4.0/"
+                rel="noopener noreferrer"
+                title="Creative Commons Attribution-ShareAlike 4.0"
+              >
+                Creative Commons Attribution-ShareAlike 4.0 License </a
+              >; additional terms may apply. By using this site, you agree to the
+              <a
+                href="https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Terms_of_Use"
+                rel="noopener noreferrer"
+                >Terms of Use</a
+              >
+              and the
+              <a
+                href="https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Privacy_policy"
+                rel="noopener noreferrer"
+                >Privacy Policy</a
+              >. Wikimedia Foundation, Inc. is a non-profit organization.
+            </p>
+          </template>
+
           <p class="chrome-footer__credit">This is a prototype made with ProtoWiki.</p>
 
           <ul class="chrome-footer__links">
@@ -101,6 +140,7 @@ const mobileFooterLinks = [
       <!-- Mobile (Minerva-style): last-edited strip + grey well + brand row + short license -->
       <template v-else>
         <a
+          v-if="showLastEditedMobile"
           class="chrome-footer__last-edited"
           href="https://en.wikipedia.org/w/index.php?title=Special:RecentChangesLinked"
         >
@@ -236,6 +276,28 @@ const mobileFooterLinks = [
   border-top: none;
 }
 
+.chrome-footer--no-last-edited-notice .chrome-footer__mobile-body {
+  border-top: 1px solid var(--border-color-muted, #dadde3);
+}
+
+.chrome-footer__last-edited-desktop {
+  margin: 0 0 var(--spacing-50, 8px);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-base, #202122);
+}
+
+.chrome-footer__license-desktop {
+  margin: 0 0 var(--spacing-100, 16px);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-base, #202122);
+}
+
+.chrome-footer__license-desktop a {
+  color: var(--color-progressive, #36c);
+}
+
 .chrome-footer__last-edited {
   display: flex;
   align-items: center;
@@ -274,7 +336,7 @@ const mobileFooterLinks = [
 }
 
 .chrome-footer__mobile-body {
-  padding: var(--spacing-100, 16px);
+  padding: var(--spacing-100, 16px) var(--spacing-100, 16px) 0;
   background-color: var(--background-color-neutral-subtle, #f8f9fa);
 }
 

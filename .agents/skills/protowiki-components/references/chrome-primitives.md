@@ -15,9 +15,17 @@ chrome-without-the-wrapper (e.g., a custom layout that doesn't use
 | `desktop` | **Vector 2022–style** | Production EN wordmark + tagline SVGs from `en.wikipedia.org/static/…`, `SearchBar` + **Search** button, user-tool cluster (appearance, bell + badge, notices tray, watchlist, user + chevron). **Main-menu glyph is icon-only** (mock, non-interactive). Global skin stays **desktop** until the viewport is **≤640px** (FakeMediaWiki `SpecialView` parity); **below 1120px**, inline search collapses to a search icon; **below 768px**, watchlist hides (`nav-button-desktop` parity in `SpecialView/style.css`). |
 | `mobile` | **Minerva-style** | Grey elevated bar: menu, Wikipedia wordmark (SVG), search icon + notifications — closer to the shared `@wm/shared` mobile header pattern than to Vector's full desktop chrome. |
 
-`ChromeFooter` is a compact reader strip: **`--background-color-base`** (white in light
-theme), thin top border, license blurb, then bullet-separated links — **no** wordmark or
-Wikimedia/MediaWiki badge logos (aligned with the default English Wikipedia footer).
+**`ChromeFooter`** matches the skin:
+
+- **`desktop`** — Vector-ish reader strip (muted top border on the inner block). When **`showLastEditedNotice`**:
+  1. Mock line: **“This page was last edited on …”**
+  2. Mock **CC BY-SA** licence blurb + Terms / Privacy / Foundation sentence (article-style metadata)
+  Then the prototype note and bullet links.
+- **`mobile`** — Minerva-ish stack (see `ChromeFooter.vue`):
+  1. Optional **mock “Last edited … by Username”** row — **same prop**; when hidden, the grey well gains a compensating **top border** so the footer still attaches cleanly.
+  2. Grey **well**: wordmark, Wikimedia/MediaWiki badge buttons, divider, short licence line, middot-linked footer rows.
+
+That notice is chrome **fiction** for prototypes — not wired to revisions. There is **no separate** “last edited” component; the toggle is **`showLastEditedNotice`** on **`ChromeFooter`** / **`ChromeWrapper`**.
 
 ## ChromeHeader
 
@@ -55,12 +63,13 @@ through the DOM.
 | --- | --- | --- | --- |
 | `skin` | `'desktop' \| 'mobile'` | `undefined` | |
 | `theme` | `'light' \| 'dark'` | `undefined` | |
+| `showLastEditedNotice` | `boolean` | `true` | Mock last-edited **notice** in the footer. **`false`** hides it on **both** skins (desktop timestamp + licence block **and** mobile strip). **`ChromeWrapper`** forwards this to the default **`ChromeFooter`**. |
 
 ### Slots
 
 | Slot | Default | Use for |
 | --- | --- | --- |
-| default | License paragraph + footer links (no logos) | Replace the entire footer |
+| default | Desktop strip or Minerva well (see skin section above) | Replace the entire footer |
 
 ### Example
 

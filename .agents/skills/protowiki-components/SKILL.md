@@ -35,7 +35,7 @@ This skill is the cross-cutting guide. Per-component depth lives in
 | `SpecialPageWrapper` | Special-page shell — title + actions + content | No | No (full-width) |
 | `PlainWrapper` | Centred narrow column — no chrome (gallery / Component-style demos) | No | No |
 | `ChromeHeader` | Vector-style chrome when `skin=desktop`, Minerva-style when `skin=mobile` — wordmarks, search cluster, user tools (via ChromeWrapper) | n/a | n/a |
-| `ChromeFooter` | License blurb + footer links (via ChromeWrapper) — no badge logos | n/a | n/a |
+| `ChromeFooter` | Footer chrome (via ChromeWrapper): **desktop** Vector strip with optional mock last-edited + CC lines, or **mobile** Minerva well + optional strip | n/a | n/a |
 | `Article` | Full reader surface: Vector-style page header + parser body (live REST, mock snapshot, or baked `html`) | No | No |
 | `ArticleHeader` | Title row, tabs, read/edit/history, tools (used inside `Article`) | No | No |
 | `ArticleLiveContent` | Parser column — live REST + cache, or baked `html`; `.mw-parser-output`, optional H1 | No | No |
@@ -116,11 +116,11 @@ The `@/` prefix resolves to `src/`.
 
 | Component | Key props | Notable slots |
 | --- | --- | --- |
-| `ChromeWrapper` | `lang?`, `dir?`, `skin?`, `theme?` | default, `#header`, `#search`, `#nav-prefix`, `#footer` |
+| `ChromeWrapper` | `lang?`, `dir?`, `skin?`, `theme?`, **`showLastEditedNotice?`** (default `true` — forwarded to `ChromeFooter`; mock notice on desktop + mobile) | default, `#header`, `#search`, `#nav-prefix`, `#footer` |
 | `SpecialPageWrapper` | `title?`, `lang?`, `dir?`, `skin?`, `theme?` | default, `#title`, `#help`, `#actions`, `#notices` |
 | `PlainWrapper` | `heading?`, `lang?`, `dir?` | default, `#heading` |
 | `ChromeHeader` | `skin?`, `theme?` | `#logo`, `#search`, `#nav` |
-| `ChromeFooter` | `skin?`, `theme?` | default |
+| `ChromeFooter` | `skin?`, `theme?`, **`showLastEditedNotice?`** (default `true`; **`false`** omits the notice on **both** skins) | default |
 | `Article` | `contentType?` (`'live'` \| `'mock'`), body props + `languagesLabel?`, `languageLinks?`, `languageSearchPlaceholder?`, header `tagline?`, `primaryTab?`, `viewTab?` | default, `#heading` |
 | `ArticleLiveContent` | `hideTitle?`, same body props as `Article` (live path) | default, `#heading` |
 | `ArticleMockContent` | `hideTitle?`, `host?`, `lang?`, `dir?`, `skin?`, `theme?` | default, `#heading` |
