@@ -19,21 +19,16 @@ import {
 import { globalSkin, PROTOWIKI_CHROME_SKIN } from '@/lib/theming'
 import type { Skin } from '@/lib/theming'
 
+const LANG_SEARCH_PLACEHOLDER = 'Search languages'
+const DEFAULT_TAGLINE = 'From Wikipedia, the free encyclopedia'
+
+const internalLanguageLinks = DEFAULT_ARTICLE_LANGUAGE_LINKS
+
 interface Props {
-  /** Page title shown in the Vector-style first heading row (large serif). */
+  /** Page title in the Vector-style first heading row (large serif); **`#title`** overrides inner markup. */
   title: string
-  /** Interlanguage trigger label, e.g. `18 languages`. */
-  languagesLabel?: string
-  /** Rows shown in the languages popover (filterable). */
-  languageLinks?: ArticleLanguageLink[]
-  /** Placeholder for the language filter field. */
-  languageSearchPlaceholder?: string
-  /** Subtitle under the tabs row (desktop only). */
-  tagline?: string
-  /** Primary namespace tab: article vs talk. */
-  primaryTab?: 'article' | 'talk'
-  /** View-state tab on the right cluster. */
-  viewTab?: 'read' | 'edit' | 'history'
+  /** Shown in the interlanguage control, e.g. **`18`** → “18 languages”. */
+  languagesCount?: number
   /**
    * Local skin override. Defaults to the inherited chrome skin (set by
    * `ChromeWrapper` via inject) or the global value from `<html>`.
@@ -43,17 +38,17 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  languagesLabel: '18 languages',
-  languageLinks: () => [...DEFAULT_ARTICLE_LANGUAGE_LINKS],
-  languageSearchPlaceholder: 'Search languages',
-  tagline: 'From Wikipedia, the free encyclopedia',
-  primaryTab: 'article',
-  viewTab: 'read',
+  languagesCount: 18,
   skin: undefined,
 })
 
 const inheritedSkin = inject(PROTOWIKI_CHROME_SKIN)
 const effectiveSkin = computed<Skin>(() => props.skin ?? inheritedSkin?.value ?? globalSkin.value)
+
+const languagesButtonLabel = computed(() => {
+  const n = props.languagesCount ?? 18
+  return n === 1 ? '1 language' : `${n} languages`
+})
 
 const emit = defineEmits<{
   talkClick: []
@@ -73,8 +68,8 @@ const langAnchor = ref<HTMLElement | null>(null)
 
 const filteredLanguageLinks = computed(() => {
   const q = langSearch.value.trim().toLowerCase()
-  if (!q) return props.languageLinks
-  return props.languageLinks.filter((row) => row.label.toLowerCase().includes(q))
+  if (!q) return internalLanguageLinks
+  return internalLanguageLinks.filter((row) => row.label.toLowerCase().includes(q))
 })
 
 watch(langMenuOpen, (open) => {
@@ -94,7 +89,9 @@ function onLanguagePick(row: ArticleLanguageLink) {
 <template>
   <header class="article-header" :data-skin="effectiveSkin">
     <div class="article-header__title-row">
-      <h1 class="article-header__title">{{ title }}</h1>
+      <h1 class="article-header__title">
+        <slot name="title">{{ title }}</slot>
+      </h1>
       <div v-if="effectiveSkin === 'desktop'" class="article-header__lang-anchor">
         <button
           ref="langAnchor"
@@ -106,7 +103,7 @@ function onLanguagePick(row: ArticleLanguageLink) {
           @click="langMenuOpen = !langMenuOpen"
         >
           <CdxIcon class="article-header__lang-icon" :icon="cdxIconLanguage" size="small" />
-          <span>{{ languagesLabel }}</span>
+          <span>{{ languagesButtonLabel }}</span>
           <CdxIcon class="article-header__caret" :icon="cdxIconDownTriangle" size="small" />
         </button>
       </div>
@@ -116,22 +113,13 @@ function onLanguagePick(row: ArticleLanguageLink) {
       <nav class="article-header__tabs" aria-label="Page tabs">
         <a
           href="#"
-          class="article-header__tab"
-          :class="{ 'article-header__tab--active': primaryTab === 'article' }"
-          :aria-current="primaryTab === 'article' ? 'page' : undefined"
+          class="article-header__tab article-header__tab--active"
+          aria-current="page"
           @click.prevent="$emit('articleClick')"
         >
           Article
         </a>
-        <a
-          href="#"
-          class="article-header__tab"
-          :class="{ 'article-header__tab--active': primaryTab === 'talk' }"
-          :aria-current="primaryTab === 'talk' ? 'page' : undefined"
-          @click.prevent="$emit('talkClick')"
-        >
-          Talk
-        </a>
+        <a href="#" class="article-header__tab" @click.prevent="$emit('talkClick')"> Talk </a>
       </nav>
 
       <nav
@@ -141,27 +129,14 @@ function onLanguagePick(row: ArticleLanguageLink) {
       >
         <a
           href="#"
-          class="article-header__action"
-          :class="{ 'article-header__action--active': viewTab === 'read' }"
-          :aria-current="viewTab === 'read' ? 'true' : undefined"
+          class="article-header__action article-header__action--active"
+          aria-current="true"
           @click.prevent="$emit('readClick')"
         >
           Read
         </a>
-        <a
-          href="#"
-          class="article-header__action"
-          :class="{ 'article-header__action--active': viewTab === 'edit' }"
-          @click.prevent="$emit('editClick')"
-        >
-          Edit
-        </a>
-        <a
-          href="#"
-          class="article-header__action"
-          :class="{ 'article-header__action--active': viewTab === 'history' }"
-          @click.prevent="$emit('historyClick')"
-        >
+        <a href="#" class="article-header__action" @click.prevent="$emit('editClick')"> Edit </a>
+        <a href="#" class="article-header__action" @click.prevent="$emit('historyClick')">
           View history
         </a>
         <CdxButton
@@ -237,14 +212,10 @@ function onLanguagePick(row: ArticleLanguageLink) {
           v-model="langSearch"
           :start-icon="cdxIconSearch"
           input-type="search"
-          :placeholder="languageSearchPlaceholder"
+          :placeholder="LANG_SEARCH_PLACEHOLDER"
           clearable
         />
-        <ul
-          class="article-header__lang-list"
-          role="listbox"
-          :aria-label="languageSearchPlaceholder"
-        >
+        <ul class="article-header__lang-list" role="listbox" :aria-label="LANG_SEARCH_PLACEHOLDER">
           <li v-for="row in filteredLanguageLinks" :key="row.href + row.label">
             <a
               class="article-header__lang-link"
@@ -275,7 +246,7 @@ function onLanguagePick(row: ArticleLanguageLink) {
     </CdxPopover>
 
     <p v-if="effectiveSkin === 'desktop'" class="article-header__tagline">
-      {{ tagline }}
+      {{ DEFAULT_TAGLINE }}
     </p>
   </header>
 </template>

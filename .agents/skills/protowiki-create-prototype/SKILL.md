@@ -30,13 +30,13 @@ definePage({
   },
 })
 
-import Article from '@/components/Article.vue'
+import ArticleLive from '@/components/ArticleLive.vue'
 import ChromeWrapper from '@/components/ChromeWrapper.vue'
 </script>
 
 <template>
   <ChromeWrapper>
-    <Article title="Albert Einstein" />
+    <ArticleLive article="Albert Einstein" />
   </ChromeWrapper>
 </template>
 ```
@@ -56,9 +56,7 @@ no other file needs to change.
   belongs in `src/components/` and gets a skill.
 - **Wrap with `ChromeWrapper`** unless the prototype is intentionally a bare
   fragment. Most Wikipedia prototypes start with chrome → article columns.
-  `ChromeWrapper` already includes **`SearchBar`** in the header and a
-  placeholder **Username** link — only add `#search` / `#nav-prefix` when
-  you need to replace or clear them.
+  `ChromeWrapper` already includes the default **`ChromeHeader`** (with inline **`SearchBar`** on desktop). Set **`username`** for the Meta user link; replace **`#header`** only for fully custom chrome.
 - **Don't write per-prototype CSS for what Codex tokens already cover** —
   that's the [`codex-usage`](../codex-usage/SKILL.md) discipline that keeps
   prototypes looking like production.
@@ -67,7 +65,9 @@ no other file needs to change.
 
 | Goal | Composition |
 | --- | --- |
-| Article-style page with chrome | `<ChromeWrapper><Article title="…"/></ChromeWrapper>` |
+| Article-style page with chrome (live) | `<ChromeWrapper><ArticleLive article="…"/></ChromeWrapper>` |
+| Article-style page with committed snapshot fixture | `<ChromeWrapper><ArticleSnapshot article="…"/></ChromeWrapper>` |
+| Article-style page with **hand-written** body HTML (no REST, no snapshot file) | `<ChromeWrapper><ArticleCustom>…</ArticleCustom></ChromeWrapper>` — canonical: **`src/prototypes/article-custom/`**; see [`protowiki-components` → `article.md`](../protowiki-components/references/article.md) ( **`hand-authored-lead`**, infobox classes) |
 | Special-page-style page | `<ChromeWrapper><SpecialPageWrapper title="…">…</SpecialPageWrapper></ChromeWrapper>` |
 | Bare canvas with chrome | `<ChromeWrapper>…</ChromeWrapper>` |
 | A/B preview, two themes side by side | Two `<ChromeWrapper>`s, one `theme="light"`, one `theme="dark"` |

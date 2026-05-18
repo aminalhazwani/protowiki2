@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { CdxTypeaheadSearch } from '@wikimedia/codex'
+import { CdxTypeaheadSearch, SearchResult } from '@wikimedia/codex'
 
 import type { Skin, Theme } from '@/lib/theming'
 
@@ -37,14 +37,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-interface SuggestionRow {
-  value: string
-  label: string
-  description?: string
-  url?: string
-}
-
-const suggestions = ref<SuggestionRow[]>([])
+const suggestions = ref<SearchResult[]>([])
 const isSearching = ref(false)
 const lastQuery = ref('')
 
@@ -107,11 +100,7 @@ function onSubmit(payload: { value?: string }) {
 </script>
 
 <template>
-  <div
-    class="search-bar"
-    :data-skin="props.skin"
-    :data-theme="props.theme"
-  >
+  <div class="search-bar" :data-skin="props.skin" :data-theme="props.theme">
     <CdxTypeaheadSearch
       id="protowiki-search"
       :placeholder="props.placeholder"

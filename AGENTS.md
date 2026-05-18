@@ -86,7 +86,7 @@ trailing **Inside ProtoWiki** section.
 | [`wiki-apis`](.agents/skills/wiki-apis/SKILL.md)                             | REST API + Action API + etiquette                                                             |
 | [`wiki-signals`](.agents/skills/wiki-signals/SKILL.md)                       | Catalog of signals (inference, analytics, links, curation, attribution, edit suggestions)     |
 | [`wiki-snapshot-data`](.agents/skills/wiki-snapshot-data/SKILL.md)           | Snapshotting article HTML and skin CSS — universal pattern                                    |
-| [`protowiki-snapshot-data`](.agents/skills/protowiki-snapshot-data/SKILL.md) | ProtoWiki integration: `public/snapshots/`, `src/styles/wiki-content/`, `Article` consumption |
+| [`protowiki-snapshot-data`](.agents/skills/protowiki-snapshot-data/SKILL.md) | ProtoWiki integration: `public/snapshots/`, `src/styles/wiki-content/`, `ArticleSnapshot` consumption |
 
 Edit Check-style suggestion overlays are split between two skills: see
 [`wiki-signals` → `edit-suggestions.md`](.agents/skills/wiki-signals/edit-suggestions.md)
@@ -109,6 +109,7 @@ mirrors [FakeMediaWiki `wiki-signals`](https://github.com/TodePond/FakeMediaWiki
   Skin/theme overrides via `[data-skin]` / `[data-theme]` selectors.
 - Codex first. If a Codex component / token / icon exists, use it.
 - Data fetching uses native `fetch` with `AbortController` for debouncing.
+- **Hand-authored article pages** (no `ArticleLive` / `ArticleSnapshot`): prefer **`ChromeWrapper` → `ArticleCustom`** (default slot = parser body); or compose **`ChromeWrapper` → `ArticleWrapper` → `ArticleRenderer`** when you need finer control. Put markup in the renderer slot; use **`section.hand-authored-lead`** when the lead includes an infobox so mobile matches enwiki order. See [`protowiki-components` → `article.md`](.agents/skills/protowiki-components/references/article.md) and **`src/prototypes/article-custom/`**.
 
 ## What this repo is not
 

@@ -9,7 +9,7 @@ sizes directly.
 | --- | --- |
 | `--font-family-system-sans` | UI text (default) |
 | `--font-family-sans` | UI text (alias) |
-| `--font-family-serif` | Wikipedia-like article title + article body (used by `ArticleHeader` + `ArticleLiveContent`) |
+| `--font-family-serif` | Wikipedia-like article title + article body (used by `ArticleHeader` + **`ArticleRenderer`** parser column) |
 | `--font-family-monospace` | code, source mode editor |
 
 ## Font size
@@ -54,7 +54,7 @@ guide). Prefer plain semantic markup in prototypes — avoid one-off font CSS
 unless you are demonstrating something outside the scale.
 
 Reader-style **underlines** on primary titles still use **`mw-first-heading`**
-(PlainWrapper, `ArticleLiveContent`, `.mw-parser-output`); that class only adds the separator —
+(PlainWrapper, **`ArticleRenderer`**'s **`.article-content`**, `.mw-parser-output`); that class only adds the separator —
 sizes come from **`h1`** + tokens.
 
 ## Tip — heading hierarchy (manual overrides)

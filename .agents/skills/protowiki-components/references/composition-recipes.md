@@ -7,18 +7,52 @@ A page is one or more wrappers + the components inside. There is no
 
 ```vue
 <ChromeWrapper>
-  <Article title="Albert Einstein" />
+  <ArticleLive article="Albert Einstein" />
 </ChromeWrapper>
 ```
 
+## Hand-authored article (no live fetch or snapshot)
+
+Use when the prototype needs **Vue-authored** article markup (infobox + sections) without **`page/html`** or **`public/snapshots/`**. Content goes in **`ArticleRenderer`** so **`.mw-parser-output`** and skin CSS apply.
+
+```vue
+<script setup lang="ts">
+import ArticleRenderer from '@/components/ArticleRenderer.vue'
+import ArticleWrapper from '@/components/ArticleWrapper.vue'
+import ChromeWrapper from '@/components/ChromeWrapper.vue'
+
+definePage({
+  meta: { title: 'My hand-authored article', description: '…' },
+})
+</script>
+
+<template>
+  <ChromeWrapper>
+    <ArticleWrapper title="Example band">
+      <ArticleRenderer>
+        <section class="hand-authored-lead">
+          <!-- table.infobox… + lead paragraphs -->
+        </section>
+        <section>
+          <h2>History</h2>
+          <!-- … -->
+        </section>
+      </ArticleRenderer>
+    </ArticleWrapper>
+  </ChromeWrapper>
+</template>
+```
+
+**Reference implementation:** **`src/prototypes/article-custom/`** (Wet Leg intro + History, enwiki-shaped infobox). Infobox header colours, **`hand-authored-lead`**, and RL vs template styles are documented in [`article.md`](article.md#hand-authored-article-markup-no-fetch-no-snapshot).
+
 ## Article page with extra markup beside the parser output
 
-Place experiments as siblings before or after `<Article>` in the default slot.
+Place experiments as siblings before or after `<ArticleLive>` or `<ArticleSnapshot>` in the padded article region.
 
 ```vue
 <ChromeWrapper>
   <MyInfoboxExperiment />
-  <Article title="Talk:Albert Einstein" />
+  <ArticleLive article="Talk:Albert Einstein" />
 </ChromeWrapper>
 ```
 
@@ -38,7 +72,7 @@ Place experiments as siblings before or after `<Article>` in the default slot.
 Special pages usually **omit** the mock last-edited notice (desktop block **and** mobile strip) — mirror **`src/prototypes/special-page-template/index.vue`**:
 
 ```vue
-<ChromeWrapper :show-last-edited-notice="false">
+<ChromeWrapper :last-edited-notice="false">
   <SpecialPageWrapper title="…">
     <!-- … -->
   </SpecialPageWrapper>
@@ -58,10 +92,10 @@ Special pages usually **omit** the mock last-edited notice (desktop block **and*
 ```vue
 <div class="protowiki-ab">
   <ChromeWrapper theme="light">
-    <Article title="Albert Einstein" />
+    <ArticleLive article="Albert Einstein" />
   </ChromeWrapper>
   <ChromeWrapper theme="dark">
-    <Article title="Albert Einstein" />
+    <ArticleLive article="Albert Einstein" />
   </ChromeWrapper>
 </div>
 
@@ -78,7 +112,7 @@ Special pages usually **omit** the mock last-edited notice (desktop block **and*
 
 ```vue
 <ChromeWrapper skin="mobile" style="max-width: 360px">
-  <Article title="Albert Einstein" />
+  <ArticleLive article="Albert Einstein" />
 </ChromeWrapper>
 ```
 
@@ -122,7 +156,7 @@ function onPublish() {
 
 ```vue
 <MyDashboard>
-  <Article title="Solar energy" />
+  <ArticleLive article="Solar energy" />
 </MyDashboard>
 ```
 
@@ -132,14 +166,14 @@ function onPublish() {
 <script setup lang="ts">
 import ChromeHeader from '@/components/ChromeHeader.vue'
 import ChromeFooter from '@/components/ChromeFooter.vue'
-import Article from '@/components/Article.vue'
+import ArticleLive from '@/components/ArticleLive.vue'
 </script>
 
 <template>
   <div class="custom-shell">
     <ChromeHeader />
     <main>
-      <Article title="Albert Einstein" />
+      <ArticleLive article="Albert Einstein" />
     </main>
     <ChromeFooter />
   </div>

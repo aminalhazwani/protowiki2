@@ -1,6 +1,6 @@
 ---
 name: protowiki-snapshot-data
-description: ProtoWiki-specific integration of the snapshotting pattern — the npm scripts that wrap the agnostic fetchers, where snapshots land in this repo (public/snapshots/, src/styles/wiki-content/), how Article consumes a pre-baked HTML body, and how the skin CSS gets scoped to [data-skin]. Use when adding a new article snapshot to ProtoWiki, refreshing the Wikipedia skin CSS, or wiring Article up to a static fixture.
+description: ProtoWiki-specific integration of the snapshotting pattern — the npm scripts that wrap the agnostic fetchers, where snapshots land in this repo (public/snapshots/, src/styles/wiki-content/), how `ArticleSnapshot` consumes a pre-baked HTML body, and how the skin CSS gets scoped to [data-skin]. Use when adding a new article snapshot to ProtoWiki, refreshing the Wikipedia skin CSS, or wiring `ArticleSnapshot` up to a static fixture.
 license: MIT
 ---
 
@@ -34,7 +34,11 @@ Current state on disk:
 
 - `src/styles/wiki-content/{vector-2022,minerva}.{css,rl.css}` — already
   committed and imported globally in `src/main.ts`.
-- `public/snapshots/wet-leg.html` — mock article fixture used by `Article` with `content-type="mock"` / `ArticleMockContent`.
+- `public/snapshots/` — HTML fixtures referenced by **`article`** on **`ArticleSnapshot`**
+  (filename stem must match **`articleSnapshotSlug()`** in `src/lib/articleSnapshotSlug.ts`):
+  - `wet-leg.html`
+  - `corsica-studios.html`
+  - `confidence-man-band.html`
 
 ## Refreshing skin CSS
 
@@ -72,45 +76,41 @@ the ProtoWiki output path:
 
 ```bash
 python3 .agents/skills/wiki-snapshot-data/assets/fetch_page.py \
-  "Albert Einstein" -o public/snapshots/albert-einstein.html
+  "Corsica Studios" -o public/snapshots/corsica-studios.html
+python3 .agents/skills/wiki-snapshot-data/assets/fetch_page.py \
+  "Confidence Man (band)" -o public/snapshots/confidence-man-band.html
 ```
+
+Match **`-o public/snapshots/<slug>.html`** to the slug **`articleSnapshotSlug()`** produces
+for the same title string you pass **`ArticleSnapshot`** (**`article="…"`**).
 
 Update the `UA` string in that script to ProtoWiki's contact when
 running it server-side — anonymous UAs are rate-limited or blocked.
 
-## Consuming a snapshot from `Article`
+## Consuming a snapshot from `ArticleSnapshot`
 
-`Article` accepts an `html` prop directly, so a pre-baked
-fixture page looks like this:
+Use a committed **`public/snapshots/&lt;slug&gt;.html`** by passing **`article`** with the
+same wiki title you used when snapshotting:
 
 ```vue
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import Article from '@/components/Article.vue'
+<ArticleSnapshot article="Corsica Studios" />
 
-const html = ref('')
-onMounted(async () => {
-  const res = await fetch(`${import.meta.env.BASE_URL}snapshots/albert-einstein.html`)
-  html.value = await res.text()
-})
-</script>
-
-<template>
-  <Article :html="html" display-title="Albert Einstein" />
-</template>
+<ArticleSnapshot article="Confidence Man (band)" />
 ```
 
-When `html` is supplied, `Article` skips the live REST fetch and
-just renders the fixture inside `.mw-parser-output`. Combined with the
-imported skin CSS, the result is visually indistinguishable from the
-real article.
+If **`public/snapshots/&lt;slug&gt;.html`** is missing (`404`), **`ArticleSnapshot`**
+shows a **`Codex`** error with a repo-root-relative **`fetch_page.py`** command to add it.
+
+## Hand-authored markup vs snapshots
+
+Use committed HTML when you want **full Parsoid fidelity** and a **frozen** page. Use **`ArticleLive`** when you want **always-current** **`page/html`**. When you need **partial content**, **fixture-free** setup, or markup that is **easier to edit in Vue** than in a snapshot file, use **`ArticleCustom`** (or compose **`ArticleWrapper`** + **`ArticleRenderer`**) with a hand-filled slot — canonical example **`src/prototypes/article-custom/`**, documented in [`protowiki-components` → `article.md`](../protowiki-components/references/article.md#hand-authored-article-markup-no-fetch-no-snapshot).
 
 ## See also
 
 - [`wiki-snapshot-data`](../wiki-snapshot-data/SKILL.md) — the universal
   pattern and the underlying fetch scripts.
 - [`protowiki-components`](../protowiki-components/SKILL.md) —
-  `Article`'s full API.
+  **`ArticleSnapshot`**, **`ArticleLive`**, **`ArticleCustom`**, **`ArticleWrapper`**, and **`ArticleRenderer`** APIs.
 - [`protowiki-skins`](../protowiki-skins/SKILL.md) — the `[data-skin]`
   cascade that the scoped CSS plugs into.
 - [`wiki-apis`](../wiki-apis/SKILL.md) — fetching live data, the

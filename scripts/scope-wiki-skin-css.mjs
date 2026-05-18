@@ -6,7 +6,7 @@
  *      RL CSS has aggressive rules like `a { padding: 0 !important }` that are
  *      meant for `<a>` inside Wikipedia article HTML and will squash Cdx components
  *      if applied broadly.
- *   2. We only render real wiki HTML inside `.mw-parser-output` (via ArticleLiveContent),
+ *   2. We only render real wiki HTML inside `.mw-parser-output` (via **`ArticleRenderer`**),
  *      so scoping there is sufficient and matches RL's design intent.
  *
  * Selectors already mentioning `.mw-parser-output` are left as-is (just skin-prefixed).
@@ -59,7 +59,7 @@ const ROOT_ONLY = /^(?:html|body|:root)(?::[\w-]+(?:\([^)]*\))?)*$/
  *
  * ProtoWiki provides all page-root styling itself: body typography in
  * `global.css`, page background / colour in our wrappers (`ChromeWrapper`,
- * `ArticleWrapper`, `Article`), and theme tokens via `data-theme`.
+ * `ArticleWrapper`, `ArticleRenderer`, `ArticleLive`, `ArticleSnapshot`, `ArticleCustom`), and theme tokens via `data-theme`.
  *
  * Rules with longer selectors (e.g. `[data-skin] .mw-parser-output > p`)
  * are RL's intentional article-content styling and stay.

@@ -1,25 +1,25 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    title: 'Template: Live article',
+    title: 'Template: Article (live)',
     description: "Template for an article page that's loaded from live data.",
   },
 })
 
-import Article from '@/components/Article.vue'
+import ArticleLive from '@/components/ArticleLive.vue'
 import ChromeWrapper from '@/components/ChromeWrapper.vue'
 </script>
 
 <template>
   <ChromeWrapper>
-    <div class="article-container">
-      <Article title="Wet Leg" />
-    </div>
+    <main>
+      <ArticleLive article="Wet Leg" />
+    </main>
   </ChromeWrapper>
 </template>
 
 <style scoped>
-.article-container {
+main {
   padding: 0 var(--spacing-100);
 }
 </style>

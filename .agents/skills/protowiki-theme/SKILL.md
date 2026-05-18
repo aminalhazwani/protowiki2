@@ -68,7 +68,8 @@ Instead ProtoWiki uses:
    reset, …) onto Codex design tokens.
 
 Per-subtree dark previews (`theme="dark"` on a wrapper while `<html>` stays light)
-still get (2) via `data-theme` on `Article` / `ArticleLiveContent`; they do **not**
+still get (2) via `data-theme` on **`ArticleWrapper`** / **`ArticleRenderer`** /
+**`ArticleLive`** / **`ArticleSnapshot`** / **`ArticleCustom`**; they do **not**
 toggle the RL night class on `<html>`, so RL’s `html.skin-theme-clientpref-night …`
 rules stay dormant unless you also use `?theme=dark` globally.
 
@@ -82,10 +83,10 @@ root element.
 <!-- Light/dark side-by-side, no iframes needed -->
 <div class="protowiki-ab">
   <ChromeWrapper theme="light">
-    <Article title="Albert Einstein" />
+    <ArticleLive article="Albert Einstein" />
   </ChromeWrapper>
   <ChromeWrapper theme="dark">
-    <Article title="Albert Einstein" />
+    <ArticleLive article="Albert Einstein" />
   </ChromeWrapper>
 </div>
 ```

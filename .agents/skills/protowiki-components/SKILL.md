@@ -1,6 +1,6 @@
 ---
 name: protowiki-components
-description: Catalog of every shipped component in src/components/ — the three single-concern layout wrappers (ChromeWrapper, SpecialPageWrapper, PlainWrapper), the chrome primitives (ChromeHeader, ChromeFooter), Article surface (Article, ArticleHeader, ArticleLiveContent, ArticleMockContent), and SearchBar. Use when picking a wrapper, composing a page, looking up props/slots/events for any ProtoWiki component, or asking "what components does ProtoWiki ship?".
+description: Catalog of every shipped component in src/components/ — the three single-concern layout wrappers (ChromeWrapper, SpecialPageWrapper, PlainWrapper), the chrome primitives (ChromeHeader, ChromeFooter), Article surfaces (`ArticleWrapper` + `ArticleRenderer`, ArticleLive, ArticleSnapshot, ArticleCustom, ArticleHeader), and SearchBar — including hand-authored article HTML in `ArticleRenderer`'s default slot (see `src/prototypes/article-custom/`). Use when picking a wrapper, composing a page, looking up props/slots/events for any ProtoWiki component, or asking "what components does ProtoWiki ship?".
 license: MIT
 ---
 
@@ -17,8 +17,8 @@ This skill is the cross-cutting guide. Per-component depth lives in
   `SpecialPageWrapper`, `PlainWrapper`
 - [`references/chrome-primitives.md`](references/chrome-primitives.md) —
   `ChromeHeader`, `ChromeFooter`
-- [`references/article.md`](references/article.md) — `Article`,
-  `ArticleHeader`, `ArticleLiveContent`, `ArticleMockContent`
+- [`references/article.md`](references/article.md) — `ArticleWrapper`, `ArticleRenderer`,
+  `ArticleLive`, `ArticleSnapshot`, `ArticleCustom`, `ArticleHeader`
 - [`references/search-bar.md`](references/search-bar.md)
 - [`references/editors.md`](references/editors.md) —
   Visual editor prototyping **outside** ProtoWiki (fork Bárbara Martínez Calvo’s article template + suggestion-mode repos)
@@ -32,15 +32,27 @@ This skill is the cross-cutting guide. Per-component depth lives in
 | Component | Concern | Renders chrome? | Renders columns? |
 | --- | --- | --- | --- |
 | `ChromeWrapper` | Wikipedia chrome (header + footer) around a slot | Yes | No |
-| `SpecialPageWrapper` | Special-page shell — title + actions + content | No | No (full-width) |
+| `SpecialPageWrapper` | Special-page shell — title row + optional help/actions + content | No | No (full-width) |
 | `PlainWrapper` | Centred narrow column — no chrome (gallery / Component-style demos) | No | No |
 | `ChromeHeader` | Vector-style chrome when `skin=desktop`, Minerva-style when `skin=mobile` — wordmarks, search cluster, user tools (via ChromeWrapper) | n/a | n/a |
 | `ChromeFooter` | Footer chrome (via ChromeWrapper): **desktop** Vector strip with optional mock last-edited + CC lines, or **mobile** Minerva well + optional strip | n/a | n/a |
-| `Article` | Full reader surface: Vector-style page header + parser body (live REST, mock snapshot, or baked `html`) | No | No |
-| `ArticleHeader` | Title row, tabs, read/edit/history, tools (used inside `Article`) | No | No |
-| `ArticleLiveContent` | Parser column — live REST + cache, or baked `html`; `.mw-parser-output`, optional H1 | No | No |
-| `ArticleMockContent` | Wet Leg fixture: fetches `public/snapshots/wet-leg.html` once (module cache), renders via `ArticleLiveContent` | No | No |
+| `ArticleWrapper` | Reader outer **`<article>`**: always **`ArticleHeader`** + **default slot** (**main column** — usually **`ArticleRenderer`**) — no **`v-html`** by itself | No | No |
+| `ArticleRenderer` | Parser column (**`.article-content`**, **`.mw-parser-output`**, **`#default`** only); mobile **`section > h2`** on mobile skin — title chrome lives elsewhere | No | No |
+| `ArticleLive` | **`ArticleWrapper`** + nested **`ArticleRenderer`** for REST **`page/html`** (+ cache); progress/errors in **default slot** before **`ArticleRenderer`** | No | No |
+| `ArticleSnapshot` | **`ArticleWrapper`** + **`ArticleRenderer`** (omitted until snapshot load succeeds or **`#default`**) + **`public/snapshots/`** | No | No |
+| `ArticleCustom` | **`ArticleWrapper`** + **`ArticleRenderer`**: **`#default`** is the parser body — no **`page/html`**, no snapshot file | No | No |
+| `ArticleHeader` | Title row, tabs, read/edit/history, tools (**used inside **`ArticleWrapper`**) | No | No |
 | `SearchBar` | `CdxTypeaheadSearch` wired to opensearch (default in ChromeHeader) | n/a | n/a |
+
+## Defaults, props, and slots (shared contract)
+
+Most regions follow the same pattern:
+
+1. **Default** — sensible markup/CSS in the component.
+2. **Prop** — tweak with the **same base name** as the paired slot where it fits (e.g. **`title`** / **`#title`**, **`help`** / **`#help`**). Boolean toggles such as **`actions`** stay plain nouns — no `show*` prefix.
+3. **Named slot `#x`** — replaces the default **inner** content for that region; when the slot is supplied, it wins over the prop-fed default.
+
+Examples: `title` / `#title` / `#header` (**`SpecialPageWrapper`** cluster), **`help`** (**`boolean`** or **`#help`**), **`actions`** (**`boolean`** or **`#actions`**), **`username`** / **`#username`**, `ChromeHeader` **`navTools`** vs **`#nav`**.
 
 ## The two ideas you need
 
@@ -51,19 +63,17 @@ page, you nest:
 
 ```vue
 <ChromeWrapper>
-  <Article title="Albert Einstein" />
+  <ArticleLive article="Albert Einstein" />
 </ChromeWrapper>
 ```
 
-Two lines, top-down: chrome → article content. There is no chrome-bundled "ArticleLayout" convenience wrapper:
-the rule is uniform — only `ChromeWrapper` paints chrome — so you never
-have to ask "which one?".
+Two lines, top-down: chrome → article surface. **`ArticleLive`** and **`ArticleSnapshot`** each compose **`ArticleWrapper`** with an **`ArticleRenderer`** in its default slot (plus fetch or snapshot UI). **`ArticleCustom`** is the same **`ArticleRenderer`** slot without fetching — use for hand-authored markup (**`src/prototypes/article-custom/`**).
 
-### 2. Shared `skin` / `theme` on every themable component; `lang` / `dir` on layout shells + `Article`
+### 2. Shared `skin` / `theme` on every themable component; `lang` / `dir` on layout shells + article surfaces
 
 Every component in this list (`ChromeWrapper`,
-`SpecialPageWrapper`, `PlainWrapper`, `Article`,
-`ArticleLiveContent`, `ArticleMockContent`, `SearchBar`) accepts the same two theming props:
+`SpecialPageWrapper`, `PlainWrapper`, `ArticleWrapper`, `ArticleRenderer`,
+`ArticleLive`, `ArticleSnapshot`, `ArticleCustom`, `SearchBar`) accepts the same two theming props:
 
 | Prop | Type | Effect |
 | --- | --- | --- |
@@ -71,23 +81,20 @@ Every component in this list (`ChromeWrapper`,
 | `theme` | `'light' \| 'dark'` | Sets `data-theme="…"` on the root, locally re-theming the subtree |
 
 The **layout wrappers** (`ChromeWrapper`, `SpecialPageWrapper`,
-`PlainWrapper`), **`Article`**, **`ArticleLiveContent`**, and **`ArticleMockContent`** accept:
+`PlainWrapper`), **`ArticleWrapper`**, **`ArticleRenderer`**, **`ArticleLive`**, **`ArticleSnapshot`**, **`ArticleCustom`** accept:
 
 | Prop | Type | Effect |
 | --- | --- | --- |
 | `lang` | `string` (BCP-47) | Sets `lang="…"` on the component root |
 | `dir` | `'ltr' \| 'rtl'` | Sets `dir="…"` on the component root — pass it explicitly; ProtoWiki does not infer it from `lang` |
 
-Usually you set `lang` / `dir` once on `ChromeWrapper` (or `<html>`); use
-`Article`'s props when you need language or direction on the article subtree
-only. Chrome primitives inherit `lang` / `dir` through the DOM and do not
-repeat these props.
+Usually you set `lang` / `dir` once on `ChromeWrapper` (or `<html>`); use **`ArticleWrapper`** /
+**`ArticleRenderer`** / **`ArticleLive`** / **`ArticleCustom`** props when you need language or direction on the article subtree only. Chrome primitives inherit `lang` / `dir` through the DOM and do not repeat these props.
 
 When `skin` / `theme` props are omitted, components resolve **effective**
-skin/theme from the nearest `ChromeWrapper` (Vue provide/inject for
-`Article` / `ArticleLiveContent` / `ArticleMockContent` / `SpecialPageWrapper`), then from global boot state on
-`<html>`. Roots set `data-skin` / `data-theme` from that resolution so
-`[data-skin]` CSS stays aligned with nested previews.
+skin/theme from the nearest `ChromeWrapper` (Vue provide/inject for **`ArticleLive`**
+/ **`ArticleSnapshot`** / **`ArticleCustom`** / **`SpecialPageWrapper`**), then from global boot state on
+`<html>`. Roots set `data-skin` / `data-theme` from that resolution so `[data-skin]` CSS stays aligned with nested previews.
 
 See [`protowiki-skins`](../protowiki-skins/SKILL.md) and
 [`protowiki-theme`](../protowiki-theme/SKILL.md) for the full theming
@@ -103,10 +110,12 @@ import ChromeHeader from '@/components/ChromeHeader.vue'
 import ChromeFooter from '@/components/ChromeFooter.vue'
 import SpecialPageWrapper from '@/components/SpecialPageWrapper.vue'
 import PlainWrapper from '@/components/PlainWrapper.vue'
-import Article from '@/components/Article.vue'
+import ArticleWrapper from '@/components/ArticleWrapper.vue'
+import ArticleRenderer from '@/components/ArticleRenderer.vue'
+import ArticleLive from '@/components/ArticleLive.vue'
+import ArticleSnapshot from '@/components/ArticleSnapshot.vue'
+import ArticleCustom from '@/components/ArticleCustom.vue'
 import ArticleHeader from '@/components/ArticleHeader.vue'
-import ArticleLiveContent from '@/components/ArticleLiveContent.vue'
-import ArticleMockContent from '@/components/ArticleMockContent.vue'
 import SearchBar from '@/components/SearchBar.vue'
 ```
 
@@ -116,15 +125,17 @@ The `@/` prefix resolves to `src/`.
 
 | Component | Key props | Notable slots |
 | --- | --- | --- |
-| `ChromeWrapper` | `lang?`, `dir?`, `skin?`, `theme?`, **`showLastEditedNotice?`** (default `true` — forwarded to `ChromeFooter`; mock notice on desktop + mobile) | default, `#header`, `#search`, `#nav-prefix`, `#footer` |
-| `SpecialPageWrapper` | `title?`, `lang?`, `dir?`, `skin?`, `theme?` | default, `#title`, `#help`, `#actions`, `#notices` |
+| `ChromeWrapper` | `lang?`, `dir?`, `skin?`, `theme?`, **`lastEditedNotice?`**, **`username?`**, **`wordmarkSrc?`**, **`taglineSrc?`**, **`mobileWordmarkSrc?`**, **`navTools?`** (`ChromeNavTool[]`, forwarded to default header) | default, `#header`, `#footer` |
+| `SpecialPageWrapper` | `title?`, **`help?`** (**`boolean`**), **`actions?`**, `lang?`, `dir?`, `skin?`, `theme?` | default, **`#header`**, **`#title`**, `#help`, `#actions` |
 | `PlainWrapper` | `heading?`, `lang?`, `dir?` | default, `#heading` |
-| `ChromeHeader` | `skin?`, `theme?` | `#logo`, `#search`, `#nav` |
-| `ChromeFooter` | `skin?`, `theme?`, **`showLastEditedNotice?`** (default `true`; **`false`** omits the notice on **both** skins) | default |
-| `Article` | `contentType?` (`'live'` \| `'mock'`), body props + `languagesLabel?`, `languageLinks?`, `languageSearchPlaceholder?`, header `tagline?`, `primaryTab?`, `viewTab?` | default, `#heading` |
-| `ArticleLiveContent` | `hideTitle?`, same body props as `Article` (live path) | default, `#heading` |
-| `ArticleMockContent` | `hideTitle?`, `host?`, `lang?`, `dir?`, `skin?`, `theme?` | default, `#heading` |
-| `ArticleHeader` | `title`, `languagesLabel?`, `languageLinks?`, `languageSearchPlaceholder?`, `tagline?`, `primaryTab?`, `viewTab?` | emits (`languageSelect`, `languageSettingsClick`, tab/action clicks) |
+| `ChromeHeader` | `skin?`, `theme?`, **`username?`**, **`wordmarkSrc?`**, **`taglineSrc?`**, **`mobileWordmarkSrc?`**, **`navTools?`** | `#logo`, `#username`, `#nav` |
+| `ChromeFooter` | `skin?`, `theme?`, **`lastEditedNotice?`**, **`username?`** | default |
+| `ArticleWrapper` | **`title?`**, **`header?`**, **`languagesCount?`**, **`lang`**, **`dir`**, **`skin`**, **`theme`** | **default** |
+| `ArticleRenderer` | **`lang`/`dir`/`skin`/`theme`** | **default** — parser subtree ( **`ArticleLive`** / **`ArticleSnapshot`** use **`v-html`** here unless **`#default`** is forwarded ) |
+| `ArticleLive` | Same **`ArticleWrapper`** chrome **`+`** **`article`** (**`page/html`** title) **`+`** **`host`** | **default** → **`ArticleRenderer`** (**`ArticleLive`** injects **`Cdx`** progress/errors before **`ArticleRenderer`**) |
+| `ArticleSnapshot` | **`article`** (snapshot key **`+`** **`ArticleWrapper`** **`title`**) **`+`** chrome passthroughs (**no **`host`** / **`header`**) | **default** → **`ArticleRenderer`** (**`ArticleSnapshot`** injects **`Cdx`** UI before **`ArticleRenderer`**) |
+| `ArticleCustom` | Same **`ArticleWrapper`** chrome keys as manual composition (**`title`**, **`header`**, …) — **no `article` / `host`** | **default** → **`ArticleRenderer`** (your **`#default`** is the parser subtree) |
+| `ArticleHeader` | **`title`** (required), **`languagesCount?`** (default 18), **`skin?`** | **`#title`**, emits (`languageSelect`, `languageSettingsClick`, tab/action clicks) |
 | `SearchBar` | `host?`, `placeholder?`, `limit?`, `skin?`, `theme?` | none |
 
 ## When to reach beyond this list

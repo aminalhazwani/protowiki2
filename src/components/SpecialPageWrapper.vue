@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, useSlots } from 'vue'
+import { CdxIcon } from '@wikimedia/codex'
+import { cdxIconHelpNotice } from '@wikimedia/codex-icons'
 
 import {
   globalSkin,
@@ -9,9 +11,25 @@ import {
 } from '@/lib/theming'
 import type { Skin, Theme } from '@/lib/theming'
 
+/** Codex docs — fixed target for the built-in Help link (not a public prop). */
+const HELP_LINK_HREF = 'https://doc.wikimedia.org/codex/latest/'
+const DEFAULT_HELP_LABEL = 'Help'
+
 interface Props {
-  /** Title rendered in the special-page title row. */
-  title?: string
+  /**
+   * Default inner text for the special-page **`h1`** (**`#title`** overrides markup).
+   * **`null`** suppresses that default **`h1`** unless **`#title`** is supplied (**`#header`** replaces the whole title cluster).
+   */
+  title?: string | null
+  /**
+   * When **`true`**, show the default Help link (**desktop**): **"Help"** + icon, fixed Codex-docs URL (**`#help`** overrides markup).
+   */
+  help?: boolean
+  /**
+   * Reserve the actions aside (e.g. toolbar). When **`true`** and **`#actions`** is absent,
+   * the region renders with no default buttons.
+   */
+  actions?: boolean
   /**
    * BCP-47 language tag for the wrapped subtree. Sets `lang` on the root.
    * Inherited by descendants via the DOM. Usually you set this once on the
@@ -31,6 +49,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   title: undefined,
+  help: false,
+  actions: false,
   lang: undefined,
   dir: undefined,
   skin: undefined,
@@ -46,6 +66,23 @@ const effectiveTheme = computed<Theme>(
 )
 
 const slots = useSlots()
+
+/** Default **`h1`** path: prop / **`#title`** supply inner markup (no **`#header`**). */
+const hasInnerTitle = computed(() => {
+  if (slots.title) return true
+  if (props.title === null || props.title === undefined) return false
+  return String(props.title).trim().length > 0
+})
+
+/** Title cluster occupies space when **`#header`** is used or default **`h1`** should show. */
+const hasTitleCluster = computed(() => Boolean(slots.header) || hasInnerTitle.value)
+
+const showHelpRegion = computed(() => Boolean(slots.help) || props.help === true)
+const showActionsRegion = computed(() => props.actions || Boolean(slots.actions))
+
+const showHeaderNav = computed(
+  () => hasTitleCluster.value || showHelpRegion.value || showActionsRegion.value,
+)
 </script>
 
 <template>
@@ -56,25 +93,29 @@ const slots = useSlots()
     :lang="props.lang"
     :dir="props.dir"
   >
-    <!-- Strip above title row (e.g. site notices) — FakeMediaWiki SpecialView parity -->
-    <div v-if="$slots.notices" class="special-page-wrapper__notices">
-      <slot name="notices" />
-    </div>
-
-    <header
-      v-if="props.title || slots.title || $slots.help || $slots.actions"
-      class="special-page-wrapper__header"
-    >
+    <header v-if="showHeaderNav" class="special-page-wrapper__header">
       <span class="special-page-wrapper__title-cluster">
-        <h1 v-if="props.title || slots.title" class="special-page-wrapper__title">
-          <slot name="title">{{ props.title }}</slot>
-        </h1>
+        <slot name="header">
+          <h1 v-if="hasInnerTitle" class="special-page-wrapper__title">
+            <slot name="title">{{ props.title }}</slot>
+          </h1>
+        </slot>
       </span>
       <span class="special-page-wrapper__header-aside">
-        <span v-if="$slots.help" class="special-page-wrapper__help">
-          <slot name="help" />
+        <span v-if="showHelpRegion" class="special-page-wrapper__help">
+          <slot name="help">
+            <a
+              v-if="props.help"
+              class="special-page-wrapper__help-link"
+              :href="HELP_LINK_HREF"
+              rel="noopener noreferrer"
+            >
+              <CdxIcon size="small" :icon="cdxIconHelpNotice" />
+              <span>{{ DEFAULT_HELP_LABEL }}</span>
+            </a>
+          </slot>
         </span>
-        <span v-if="$slots.actions" class="special-page-wrapper__actions">
+        <span v-if="showActionsRegion" class="special-page-wrapper__actions">
           <slot name="actions" />
         </span>
       </span>
@@ -99,13 +140,6 @@ const slots = useSlots()
   padding-top: var(--spacing-150);
   padding-inline: var(--spacing-150);
   background-color: var(--background-color-base);
-}
-
-.special-page-wrapper__notices {
-  min-height: var(--spacing-50, 8px);
-  margin: 0 calc(-1 * var(--spacing-250, 44px)) var(--spacing-50, 8px);
-  padding: 0 var(--spacing-250, 44px);
-  background-color: var(--background-color-notice, #eaf3ff);
 }
 
 .special-page-wrapper__header {
@@ -160,7 +194,8 @@ const slots = useSlots()
   gap: var(--spacing-100, 16px);
 }
 
-.special-page-wrapper__help :deep(a) {
+.special-page-wrapper__help :deep(a),
+.special-page-wrapper__help-link {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-50, 8px);
@@ -170,7 +205,8 @@ const slots = useSlots()
   text-decoration: none;
 }
 
-.special-page-wrapper__help :deep(a:hover) {
+.special-page-wrapper__help :deep(a:hover),
+.special-page-wrapper__help-link:hover {
   text-decoration: underline;
 }
 
@@ -186,14 +222,10 @@ const slots = useSlots()
 
 .special-page-wrapper[data-skin='mobile'] {
   padding: var(--spacing-100);
+  padding-block: var(--spacing-150);
 }
 
 .special-page-wrapper[data-skin='mobile'] .special-page-wrapper__help {
   display: none;
-}
-
-.special-page-wrapper[data-skin='mobile'] .special-page-wrapper__notices {
-  margin-inline: calc(-1 * var(--spacing-100, 16px));
-  padding-inline: var(--spacing-100, 16px);
 }
 </style>

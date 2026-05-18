@@ -135,6 +135,6 @@ When in doubt, the canonical docs are at
 ## Inside ProtoWiki
 
 ProtoWiki composes these primitives into wrappers (`ChromeWrapper`,
-`SpecialPageWrapper`, `PlainWrapper`) and reader components (`Article`,
-`ArticleLiveContent`, …; **`SearchBar`** wraps `CdxTypeaheadSearch`). See
+`SpecialPageWrapper`, `PlainWrapper`) and reader surfaces (`ArticleWrapper`,
+`ArticleRenderer`, `ArticleLive`, `ArticleSnapshot`, `ArticleCustom`, …; **`SearchBar`** wraps `CdxTypeaheadSearch`). See
 [`protowiki-components`](../protowiki-components/SKILL.md).

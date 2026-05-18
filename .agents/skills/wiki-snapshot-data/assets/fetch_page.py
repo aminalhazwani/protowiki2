@@ -2,26 +2,31 @@
 """Snapshot a Wikipedia article body to a static HTML file.
 
 Usage:
-    python3 fetch_page.py "Albert Einstein" -o public/snapshots/albert-einstein.html
+    python3 fetch_page.py "Corsica Studios" -o public/snapshots/corsica-studios.html
     python3 fetch_page.py "Mont Blanc" --lang fr -o public/snapshots/mont-blanc.html
-    python3 fetch_page.py "Albert Einstein" --revision 1234567890
+    python3 fetch_page.py "Confidence Man (band)" -o public/snapshots/confidence-man-band.html
+    python3 fetch_page.py "Corsica Studios" --revision 1234567890
 
 The output file contains the inner <body>…</body> HTML — drop it into
 ProtoWiki via:
 
-    <Article :html="snapshot" display-title="Albert Einstein" />
+    <ArticleSnapshot article="Corsica Studios" />
+
+The filename stem (e.g. corsica-studios) should match `articleSnapshotSlug()`
+in `src/lib/articleSnapshotSlug.ts` and `-o public/snapshots/<stem>.html`.
 """
 import argparse
 import re
 import sys
 import urllib.parse
 import urllib.request
+from typing import Optional
 
 
 UA = "ProtoWiki-snapshot/0.1 (https://github.com/<org>/protowiki; <contact>)"
 
 
-def fetch(title: str, lang: str = "en", revision: int | None = None) -> str:
+def fetch(title: str, lang: str = "en", revision: Optional[int] = None) -> str:
     slug = urllib.parse.quote(title.replace(" ", "_"), safe="")
     base = f"https://{lang}.wikipedia.org/api/rest_v1/page/html/{slug}"
     url = f"{base}/{revision}" if revision else base

@@ -10,7 +10,7 @@
  * duplicating it stacks two hairlines.
  */
 
-.article-content[data-skin='mobile'] .mw-parser-output div.hatnote {
+.article[data-skin='mobile'] .mw-parser-output div.hatnote {
   box-sizing: border-box;
   margin-top: 0;
   margin-bottom: var(--spacing-50, 8px) !important;
@@ -28,7 +28,7 @@
  * (those <style> tags are inserted after head stylesheets). Match mobile-web:
  * full line reads as italic, including linked album title.
  */
-.article-content[data-skin='mobile'] .mw-parser-output div.hatnote i {
+.article[data-skin='mobile'] .mw-parser-output div.hatnote i {
   font-style: italic !important;
 }
 
@@ -37,10 +37,10 @@
  * maintenance templates). It still picks up default paragraph margins / line box
  * — remove it from layout so the lead / infobox sits flush under the strip.
  */
-.article-content[data-skin='mobile'] .mw-parser-output div.hatnote + p.mw-empty-elt {
+.article[data-skin='mobile'] .mw-parser-output div.hatnote + p.mw-empty-elt {
   display: none;
 }
 
-.article-content[data-skin='mobile'] .mw-parser-output div.hatnote:has(+ p.mw-empty-elt) {
+.article[data-skin='mobile'] .mw-parser-output div.hatnote:has(+ p.mw-empty-elt) {
   margin-bottom: 0 !important;
 }

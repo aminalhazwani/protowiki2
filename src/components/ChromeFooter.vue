@@ -24,19 +24,23 @@ interface Props {
    * Mock article “last edited” notice in the footer: Vector-style lines on **desktop**,
    * Minerva strip on **mobile**. Set **false** on special-page–style shells.
    */
-  showLastEditedNotice?: boolean
+  lastEditedNotice?: boolean
+  /** Shown as “Last edited … by **[username]**” in the mobile strip. **`ChromeWrapper`** forwards this. */
+  username?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   skin: undefined,
   theme: undefined,
-  showLastEditedNotice: true,
+  lastEditedNotice: true,
+  username: 'Username',
 })
 
 const effectiveSkin = computed<Skin>(() => props.skin ?? globalSkin.value)
 const effectiveTheme = computed<Theme>(() => props.theme ?? globalTheme.value)
 const isDesktop = computed(() => effectiveSkin.value === 'desktop')
-const showLastEditedMobile = computed(() => props.showLastEditedNotice && !isDesktop.value)
+const showLastEditedMobile = computed(() => props.lastEditedNotice && !isDesktop.value)
+const lastEditedByLabel = computed(() => props.username.trim() || 'Username')
 
 const links = [
   {
@@ -99,7 +103,7 @@ const mobileFooterLinks = [
       <!-- Desktop / tablet (Vector): centred column + prototype note -->
       <template v-if="isDesktop">
         <div class="chrome-footer__inner">
-          <template v-if="showLastEditedNotice">
+          <template v-if="props.lastEditedNotice">
             <p class="chrome-footer__last-edited-desktop">
               This page was last edited on 8 May 2026, at 04:34.
             </p>
@@ -146,7 +150,7 @@ const mobileFooterLinks = [
         >
           <CdxIcon class="chrome-footer__last-edited-icon" :icon="cdxIconHistory" size="small" />
           <span class="chrome-footer__last-edited-text">
-            Last edited 1 month ago by <strong>Username</strong>
+            Last edited 1 month ago by <strong>{{ lastEditedByLabel }}</strong>
           </span>
           <CdxIcon
             class="chrome-footer__last-edited-chevron"

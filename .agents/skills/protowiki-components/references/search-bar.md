@@ -49,37 +49,13 @@ function onSubmit(query: string) {
   fall back to a real Wikipedia search by hitting Enter when offline-
   rendering this prototype.
 
-## Replacing or hiding it
+## Inside `ChromeHeader`
 
-**`ChromeWrapper`** forwards `#search` to **`ChromeHeader`**. If you omit
-`#search` on `ChromeWrapper`, it defaults to **`<SearchBar />`** (same as
-`ChromeHeader`'s own default) — so most prototypes never import `SearchBar`.
+Desktop Vector chrome always mounts **`<SearchBar />`** in the inline search cluster (no `#search` slot). Most prototypes never import **`SearchBar`** — they use **`ChromeWrapper`**, which renders the default **`ChromeHeader`**.
 
-**`ChromeWrapper`** also defaults **`#nav-prefix`** to a placeholder **Username**
-link (`chrome-header__username-link` → Meta). Override with your own markup, or
-use an empty `<template #nav-prefix></template>` to hide it.
+The chrome user link (**`chrome-header__username-link` → Meta**) is **`ChromeHeader`’s **`username`** prop (**`ChromeWrapper`** forwards the same prop when you use the default header). **`username=""`** hides that link.
 
-Custom search:
-
-```vue
-<ChromeWrapper>
-  <template #search>
-    <MyCustomSearch />
-  </template>
-  …
-</ChromeWrapper>
-```
-
-Suppress inline search (keeps layout; use sparingly):
-
-```vue
-<ChromeWrapper>
-  <template #search>
-    <span aria-hidden="true" />
-  </template>
-  …
-</ChromeWrapper>
-```
+For a different search surface, replace **`ChromeWrapper`'s `#header`** with a custom **`ChromeHeader`** (fork the template) or your own header markup.
 
 ## Etiquette
 

@@ -12,11 +12,12 @@ import {
   cdxIconWatchlist,
 } from '@wikimedia/codex-icons'
 
+import { DEFAULT_CHROME_NAV_TOOLS, type ChromeNavTool } from '@/lib/chromeHeader'
 import { globalSkin, globalTheme } from '@/lib/theming'
 import type { Skin, Theme } from '@/lib/theming'
 import SearchBar from './SearchBar.vue'
 
-/** Production-hosted SVGs (English Wikipedia); swap via #logo / slots when prototyping other projects. */
+/** Fallback EN CDN SVGs — override via **`wordmarkSrc`** / **`taglineSrc`** / **`mobileWordmarkSrc`**. */
 const WIKIPEDIA_WORDMARK_EN =
   'https://en.wikipedia.org/static/images/mobile/copyright/wikipedia-wordmark-en-25.svg'
 const WIKIPEDIA_TAGLINE_EN =
@@ -27,17 +28,54 @@ interface Props {
   skin?: Skin
   /** Local theme override. Sets `data-theme` on the root. */
   theme?: Theme
+  /**
+   * Desktop chrome: Meta link mock before tool icons (`chrome-header__username-link`);
+   * trim; empty hides unless **`#username`** overrides.
+   */
+  username?: string
+  /** Desktop stacked wordmark image URL (`#logo` replaces both lines). */
+  wordmarkSrc?: string
+  /** Desktop tagline image URL beneath the wordmark. */
+  taglineSrc?: string
+  /** Minerva wordmark (`#logo` replaces on mobile path). Defaults to **`wordmarkSrc`** then EN constant. */
+  mobileWordmarkSrc?: string
+  /**
+   * Subset/order of mocked Vector tool icons (**desktop only** — mobile bar ignores this).
+   * **`#nav`** replaces the whole cluster regardless.
+   */
+  navTools?: ChromeNavTool[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   skin: undefined,
   theme: undefined,
+  username: 'Username',
+  wordmarkSrc: undefined,
+  taglineSrc: undefined,
+  mobileWordmarkSrc: undefined,
+  navTools: undefined,
 })
 
 const effectiveSkin = computed<Skin>(() => props.skin ?? globalSkin.value)
 const effectiveTheme = computed<Theme>(() => props.theme ?? globalTheme.value)
 const isDesktop = computed(() => effectiveSkin.value === 'desktop')
 const isMobile = computed(() => effectiveSkin.value === 'mobile')
+const trimmedUsername = computed(() => props.username.trim())
+const showChromeUsernameLink = computed(() => trimmedUsername.value.length > 0)
+
+const desktopWordmarkSrc = computed(() => props.wordmarkSrc ?? WIKIPEDIA_WORDMARK_EN)
+const desktopTaglineSrc = computed(() => props.taglineSrc ?? WIKIPEDIA_TAGLINE_EN)
+const mobileWordmarkResolved = computed(
+  () => props.mobileWordmarkSrc ?? props.wordmarkSrc ?? WIKIPEDIA_WORDMARK_EN,
+)
+
+const effectiveNavTools = computed(() =>
+  props.navTools?.length ? props.navTools : DEFAULT_CHROME_NAV_TOOLS,
+)
+
+function navHas(tool: ChromeNavTool): boolean {
+  return effectiveNavTools.value.includes(tool)
+}
 </script>
 
 <template>
@@ -63,14 +101,14 @@ const isMobile = computed(() => effectiveSkin.value === 'mobile')
             <span class="chrome-header__wordmarks">
               <img
                 class="chrome-header__wordmark-img"
-                :src="WIKIPEDIA_WORDMARK_EN"
+                :src="desktopWordmarkSrc"
                 width="120"
                 height="18"
                 alt="Wikipedia"
               />
               <img
                 class="chrome-header__tagline-img"
-                :src="WIKIPEDIA_TAGLINE_EN"
+                :src="desktopTaglineSrc"
                 width="120"
                 height="14"
                 alt=""
@@ -82,9 +120,7 @@ const isMobile = computed(() => effectiveSkin.value === 'mobile')
 
       <div class="chrome-header__inline-search">
         <div class="chrome-header__search">
-          <slot name="search">
-            <SearchBar />
-          </slot>
+          <SearchBar />
         </div>
         <CdxButton
           class="chrome-header__search-submit"
@@ -105,22 +141,46 @@ const isMobile = computed(() => effectiveSkin.value === 'mobile')
         >
           <CdxIcon :icon="cdxIconSearch" />
         </CdxButton>
-        <slot name="nav-prefix" />
+        <slot name="username">
+          <a
+            v-if="showChromeUsernameLink"
+            class="chrome-header__username-link"
+            href="https://meta.wikimedia.org/wiki/Main_Page"
+            rel="noopener noreferrer"
+          >
+            {{ trimmedUsername }}
+          </a>
+        </slot>
         <slot name="nav">
-          <CdxButton weight="quiet" aria-label="Appearance">
+          <CdxButton v-if="navHas('appearance')" weight="quiet" aria-label="Appearance">
             <CdxIcon :icon="cdxIconAppearance" />
           </CdxButton>
-          <CdxButton weight="quiet" class="chrome-header__notify" aria-label="Notifications">
+          <CdxButton
+            v-if="navHas('notifications')"
+            weight="quiet"
+            class="chrome-header__notify"
+            aria-label="Notifications"
+          >
             <CdxIcon :icon="cdxIconBell" />
             <span class="chrome-header__notify-badge" aria-hidden="true">1</span>
           </CdxButton>
-          <CdxButton weight="quiet" aria-label="Notices">
+          <CdxButton v-if="navHas('notices')" weight="quiet" aria-label="Notices">
             <CdxIcon :icon="cdxIconTray" />
           </CdxButton>
-          <CdxButton weight="quiet" class="chrome-header__hide-narrow" aria-label="Watchlist">
+          <CdxButton
+            v-if="navHas('watchlist')"
+            weight="quiet"
+            class="chrome-header__hide-narrow"
+            aria-label="Watchlist"
+          >
             <CdxIcon :icon="cdxIconWatchlist" />
           </CdxButton>
-          <CdxButton weight="quiet" class="chrome-header__user-btn" aria-label="User menu">
+          <CdxButton
+            v-if="navHas('user')"
+            weight="quiet"
+            class="chrome-header__user-btn"
+            aria-label="User menu"
+          >
             <CdxIcon :icon="cdxIconUserAvatar" />
             <span class="chrome-header__dropdown-chevron" aria-hidden="true" />
           </CdxButton>
@@ -138,7 +198,7 @@ const isMobile = computed(() => effectiveSkin.value === 'mobile')
         <slot name="logo">
           <img
             class="chrome-header__mobile-wordmark-img"
-            :src="WIKIPEDIA_WORDMARK_EN"
+            :src="mobileWordmarkResolved"
             alt="Wikipedia"
           />
         </slot>

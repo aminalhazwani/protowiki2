@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, provide } from 'vue'
 
+import type { ChromeNavTool } from '@/lib/chromeHeader'
 import {
   globalSkin,
   globalTheme,
@@ -10,7 +11,6 @@ import {
 import type { Skin, Theme } from '@/lib/theming'
 import ChromeHeader from './ChromeHeader.vue'
 import ChromeFooter from './ChromeFooter.vue'
-import SearchBar from './SearchBar.vue'
 
 interface Props {
   /**
@@ -32,10 +32,20 @@ interface Props {
   /** Local theme override. Sets `data-theme` on the wrapper root. */
   theme?: Theme
   /**
-   * Passed to ChromeFooter: mock “last edited” notice
-   * (Vector-style block on desktop, Minerva strip on mobile).
+   * Mock article “last edited” notice (footer). **`false`** for special-page–style shells.
+   * Forwarded to **`ChromeFooter`** when using the default **`#footer`** slot.
    */
-  showLastEditedNotice?: boolean
+  lastEditedNotice?: boolean
+  /** Forwarded to **`ChromeHeader`** / **`ChromeFooter`** (Meta label; mobile footer line). */
+  username?: string
+  /** Forwarded to **`ChromeHeader`**. */
+  wordmarkSrc?: string
+  /** Forwarded to **`ChromeHeader`**. */
+  taglineSrc?: string
+  /** Forwarded to **`ChromeHeader`**. */
+  mobileWordmarkSrc?: string
+  /** Forwarded to **`ChromeHeader`** (desktop tools only). */
+  navTools?: ChromeNavTool[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -43,7 +53,12 @@ const props = withDefaults(defineProps<Props>(), {
   dir: undefined,
   skin: undefined,
   theme: undefined,
-  showLastEditedNotice: true,
+  lastEditedNotice: true,
+  username: 'Username',
+  wordmarkSrc: undefined,
+  taglineSrc: undefined,
+  mobileWordmarkSrc: undefined,
+  navTools: undefined,
 })
 
 const effectiveSkin = computed<Skin>(() => props.skin ?? globalSkin.value)
@@ -62,24 +77,15 @@ provide(PROTOWIKI_CHROME_THEME, effectiveTheme)
     :dir="props.dir"
   >
     <slot name="header">
-      <ChromeHeader :skin="effectiveSkin" :theme="effectiveTheme">
-        <template #search>
-          <slot name="search">
-            <SearchBar />
-          </slot>
-        </template>
-        <template #nav-prefix>
-          <slot name="nav-prefix">
-            <a
-              class="chrome-header__username-link"
-              href="https://meta.wikimedia.org/wiki/Main_Page"
-              rel="noopener noreferrer"
-            >
-              Username
-            </a>
-          </slot>
-        </template>
-      </ChromeHeader>
+      <ChromeHeader
+        :skin="effectiveSkin"
+        :theme="effectiveTheme"
+        :username="props.username"
+        :wordmark-src="props.wordmarkSrc"
+        :tagline-src="props.taglineSrc"
+        :mobile-wordmark-src="props.mobileWordmarkSrc"
+        :nav-tools="props.navTools"
+      />
     </slot>
 
     <main class="chrome-wrapper__content">
@@ -90,7 +96,8 @@ provide(PROTOWIKI_CHROME_THEME, effectiveTheme)
       <ChromeFooter
         :skin="effectiveSkin"
         :theme="effectiveTheme"
-        :show-last-edited-notice="props.showLastEditedNotice"
+        :last-edited-notice="props.lastEditedNotice"
+        :username="props.username"
       />
     </slot>
   </div>

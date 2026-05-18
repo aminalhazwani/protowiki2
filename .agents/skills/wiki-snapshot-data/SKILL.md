@@ -118,7 +118,7 @@ if __name__ == '__main__':
 Usage:
 
 ```bash
-python3 fetch_page.py "Albert Einstein" -o snapshots/albert-einstein.html
+python3 fetch_page.py "Corsica Studios" -o snapshots/corsica-studios.html
 python3 fetch_page.py "Mont Blanc" --lang fr -o snapshots/mont-blanc.html
 ```
 
@@ -244,5 +244,4 @@ that revision id in your snapshotter.
 ProtoWiki has a dedicated companion skill,
 [`protowiki-snapshot-data`](../protowiki-snapshot-data/SKILL.md), that
 covers the repo-specific paths, the wrapped npm scripts that wire the
-fetch + scoping into one command, and how `Article` consumes a
-snapshot.
+fetch + scoping into one command, and how **`ArticleSnapshot`** consumes a snapshot.

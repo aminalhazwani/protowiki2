@@ -196,9 +196,11 @@ format of each file, and how to navigate them.
 
 ## Inside ProtoWiki
 
-`Article` (via **`ArticleLiveContent`** / **`ArticleMockContent`**) and **`SearchBar`**
-already wrap REST `/page/html` and Action `opensearch` respectively, with debouncing,
-cancellation, and sane defaults. The committed schema snapshots live under
+`ArticleLive` calls REST **`page/html/{title}`**; **`SearchBar`** wraps Action **`opensearch`**
+(with debouncing and **`AbortController`** cancellation). **`ArticleSnapshot`** loads **`public/snapshots/`**
+HTML only (no **`page/html`** hit). Typical usage already covers UA etiquette and sane defaults.
+
+The committed schema snapshots live under
 `.agents/skills/wiki-apis/assets/snapshots/` and are refreshed via
 `fetch_schemas.sh`. See
 [`references/protowiki-integration.md`](references/protowiki-integration.md)

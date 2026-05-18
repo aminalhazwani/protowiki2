@@ -10,24 +10,16 @@ import ChromeWrapper from '@/components/ChromeWrapper.vue'
 </script>
 
 <template>
-  <ChromeWrapper>
-    <div class="chrome-template__body">
+  <ChromeWrapper username="Username">
+    <main>
       <h1>Chrome wrapper</h1>
-      <p class="chrome-template__text">Starter template — empty chrome wrapper.</p>
-    </div>
+      <p>Starter template — empty chrome wrapper.</p>
+    </main>
   </ChromeWrapper>
 </template>
 
 <style scoped>
-.chrome-template__body {
-  padding: var(--spacing-100) var(--spacing-100);
-}
-
-.chrome-template__text {
-  margin: 0 0 var(--spacing-100);
-}
-
-.chrome-template__text:last-child {
-  margin-bottom: 0;
+main {
+  padding: var(--spacing-100);
 }
 </style>
