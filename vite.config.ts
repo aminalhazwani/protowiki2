@@ -1,6 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-import { copyFileSync, existsSync } from 'node:fs'
-import { resolve } from 'node:path'
 
 import { defineConfig } from 'vite'
 import VueRouter from 'unplugin-vue-router/vite'
@@ -28,21 +26,9 @@ export default defineConfig(({ command }) => ({
       dts: 'src/typed-router.d.ts',
     }),
     vue(),
-    // GitHub Pages serves a static 404.html for unknown paths. By copying
-    // index.html to 404.html on build, history-mode routing works without a
-    // server-side rewrite: the SPA boots from any deep link.
-    {
-      name: 'protowiki-spa-404',
-      apply: 'build',
-      closeBundle() {
-        const dist = resolve(__dirname, 'dist')
-        const index = resolve(dist, 'index.html')
-        const fallback = resolve(dist, '404.html')
-        if (existsSync(index)) {
-          copyFileSync(index, fallback)
-        }
-      },
-    },
+    // Root SPA fallback: public/404.html (redirect script) is copied to dist/.
+    // restoreGithubPagesSpaUrl() in main.ts completes the flow for prod and
+    // /pr-preview/pr-N/ deep links. Do not overwrite 404.html with index.html.
   ],
   resolve: {
     alias: {

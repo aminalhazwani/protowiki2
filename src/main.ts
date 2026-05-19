@@ -11,8 +11,10 @@ import './styles/wiki-content/minerva.css'
 import './styles/wiki-content/mobile-wiki-overrides.css'
 import './styles/dark.css'
 
+import { restoreGithubPagesSpaUrl } from './lib/githubPagesSpaRedirect'
 import { initTheming } from './lib/theming'
 
+restoreGithubPagesSpaUrl()
 initTheming()
 
 const router = createRouter({

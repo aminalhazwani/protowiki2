@@ -42,8 +42,10 @@ The build:
 3. Copies **`public/.nojekyll`** into `dist/` so GitHub Pages does not run
    Jekyll (Jekyll drops Vite chunks whose names start with `_`, e.g.
    `_plugin-vue_export-helper-….js`).
-4. **Copies `dist/index.html` to `dist/404.html`** so GitHub Pages serves
-   the SPA shell for unknown paths. Vue Router matches client-side.
+4. Copies **`public/404.html`** (redirect script) to `dist/404.html`. GitHub
+   only reads **root** `404.html`; it redirects deep links (including
+   `/pr-preview/pr-N/…`) to `?/route` under the right base. `main.ts` calls
+   `restoreGithubPagesSpaUrl()` before the router starts.
 
 ## Base path
 
@@ -145,8 +147,13 @@ into review tickets to pin a specific preview.
 
 ## Troubleshooting
 
-- **404 on a deep link.** The `404.html` copy step in `vite.config.ts`
-  must run; verify `dist/404.html` exists after build.
+- **404 on a deep link (production).** Verify `dist/404.html` exists after
+  build (from `public/404.html`) and `main` has been deployed so root
+  `gh-pages` has the redirect script.
+- **404 on a route inside a PR preview** (gallery works, `/pr-preview/pr-N/foo`
+  does not). Same root `404.html` must be on `gh-pages` from a recent **main**
+  deploy; preview-only deploys do not update it. Push to `main`, then hard-refresh
+  the preview deep link (one redirect via `?/…` is expected).
 - **Asset URLs missing the base path.** Check `import.meta.env.BASE_URL`
   matches the deployed URL prefix; the router uses it.
 - **Blank app on Pages or preview.** Wrong `PROTOWIKI_BASE` (missing repo
