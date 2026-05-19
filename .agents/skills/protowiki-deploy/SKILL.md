@@ -39,7 +39,10 @@ The build:
 
 1. Runs Vite with `PROTOWIKI_BASE` (see [Base path](#base-path)).
 2. Code-splits per route (each prototype gets its own JS chunk).
-3. **Copies `dist/index.html` to `dist/404.html`** so GitHub Pages serves
+3. Copies **`public/.nojekyll`** into `dist/` so GitHub Pages does not run
+   Jekyll (Jekyll drops Vite chunks whose names start with `_`, e.g.
+   `_plugin-vue_export-helper-….js`).
+4. **Copies `dist/index.html` to `dist/404.html`** so GitHub Pages serves
    the SPA shell for unknown paths. Vue Router matches client-side.
 
 ## Base path
@@ -157,3 +160,6 @@ into review tickets to pin a specific preview.
   to rebuild after the action commits.
 - **Main deploy deleted PR previews.** `deploy.yml` must keep
   `clean-exclude: pr-preview/` and `force: false` on JamesIves.
+- **Blank page; 404 on `_plugin-vue_export-helper-….js` or other `_*`
+  assets.** Missing `.nojekyll` at the site root — ensure `public/.nojekyll`
+  exists and redeploy `main` (and re-run the PR preview workflow if needed).
