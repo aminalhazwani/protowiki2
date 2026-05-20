@@ -141,7 +141,7 @@ const userMenuItems = [
             <CdxSelect
               v-model:selected="user"
               :menu-items="userMenuItems"
-              default-label="Logged out"
+              default-label="New editor"
             />
           </label>
         </div>

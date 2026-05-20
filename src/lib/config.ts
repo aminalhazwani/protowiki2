@@ -8,7 +8,7 @@ export interface Config {
 
 export const DEFAULT_CONFIG: Config = {
   theme: 'system',
-  user: 'logged-out',
+  user: 'new',
 }
 
 const STORAGE_KEY = 'protowiki-prototype-user-config'

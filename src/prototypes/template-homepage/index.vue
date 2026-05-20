@@ -1,14 +1,28 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import ChromeWrapper from '@/components/ChromeWrapper.vue'
 import Dashboard from '@/components/Dashboard.vue'
 import DashboardModule from '@/components/DashboardModule.vue'
 import SpecialPageWrapper from '@/components/SpecialPageWrapper.vue'
+import { useConfig } from '@/composables/useConfig'
 import HelpModule from './HelpModule.vue'
 import ImpactModule from './ImpactModule.vue'
 import MentorModule from './MentorModule.vue'
-import { APP_HOME, HELP_LINKS, MENTOR, MODULE } from './dashpage-fixtures'
+import { APP_HOME, HELP_LINKS, IMPACT, IMPACT_DESKTOP, MENTOR, MODULE } from './dashpage-fixtures'
+
+const { user } = useConfig()
+
+const showLoggedInModules = computed(() => user.value !== 'logged-out')
+
+const impactMobileProps = computed(() =>
+  user.value === 'experienced' ? { to: APP_HOME, ...IMPACT } : { to: APP_HOME },
+)
+
+const impactDesktopProps = computed(() =>
+  user.value === 'experienced' ? IMPACT_DESKTOP : {},
+)
 
 definePage({
   meta: {
@@ -39,9 +53,10 @@ definePage({
               <p class="prototype-dashpage-placeholder">{{ MODULE.thankBody }}</p>
             </DashboardModule>
 
-            <ImpactModule :to="APP_HOME" />
+            <ImpactModule v-if="showLoggedInModules" v-bind="impactMobileProps" />
 
             <MentorModule
+              v-if="showLoggedInModules"
               :mentor-name="MENTOR.name"
               :edit-count="MENTOR.editCount"
               :last-active-days-ago="MENTOR.lastActiveDaysAgo"
@@ -65,9 +80,10 @@ definePage({
           </template>
 
           <template #sidebar>
-            <ImpactModule />
+            <ImpactModule v-if="showLoggedInModules" v-bind="impactDesktopProps" />
 
             <MentorModule
+              v-if="showLoggedInModules"
               :mentor-name="MENTOR.name"
               :edit-count="MENTOR.editCount"
               :last-active-days-ago="MENTOR.lastActiveDaysAgo"
