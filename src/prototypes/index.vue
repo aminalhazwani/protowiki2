@@ -17,7 +17,7 @@ import { useConfig } from '@/composables/useConfig'
 import { CONFIG_USER_MENU_ITEMS } from '@/lib/config'
 
 const router = useRouter()
-const { theme, user } = useConfig()
+const { user } = useConfig()
 
 interface PrototypeMeta {
   title?: string
@@ -93,12 +93,6 @@ const showBucketDivider = computed(
 const settingsOpen = ref(false)
 const settingsAnchor = ref<HTMLElement | null>(null)
 
-const themeMenuItems = [
-  { value: 'system', label: 'System' },
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-]
-
 </script>
 
 <template>
@@ -124,14 +118,6 @@ const themeMenuItems = [
         class="prototype-index__settings-popover"
       >
         <div class="prototype-index__settings-panel" @click.stop>
-          <label class="prototype-index__settings-field">
-            <span class="prototype-index__settings-label">Theme</span>
-            <CdxSelect
-              v-model:selected="theme"
-              :menu-items="themeMenuItems"
-              default-label="System"
-            />
-          </label>
           <label class="prototype-index__settings-field">
             <span class="prototype-index__settings-label">User</span>
             <CdxSelect
