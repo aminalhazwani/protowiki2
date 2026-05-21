@@ -1,14 +1,58 @@
 export type ConfigTheme = 'light' | 'dark' | 'system'
 export type ConfigUser = 'logged-out' | 'new' | 'experienced'
 
+export type PageListKey = 'watchlist' | 'readingList' | 'editedPages'
+
+export interface UserPageLists {
+  watchlist: string[]
+  readingList: string[]
+  editedPages: string[]
+}
+
 export interface Config {
   theme: ConfigTheme
   user: ConfigUser
+  userPageLists: Record<ConfigUser, UserPageLists>
+}
+
+export const DEFAULT_USER_PAGE_LISTS: Record<ConfigUser, UserPageLists> = {
+  'logged-out': {
+    watchlist: [],
+    readingList: [],
+    editedPages: [],
+  },
+  new: {
+    watchlist: [],
+    readingList: ['Wet Leg', 'Jade Thirlwall'],
+    editedPages: [],
+  },
+  experienced: {
+    watchlist: [
+      'Wet Leg',
+      'Jade Thirlwall',
+      'Confidence Man (band)',
+      'Gorillaz',
+      'Little Mix',
+      'DSEI',
+    ],
+    readingList: [
+      'Wet Leg',
+      'Jade Thirlwall',
+      'Confidence Man (band)',
+      'Gorillaz',
+      'Little Mix',
+      'Charli XCX',
+      'Dada',
+      'Surrealism',
+    ],
+    editedPages: ['Wet Leg', 'Jade Thirlwall', 'Confidence Man (band)', 'Gorillaz'],
+  },
 }
 
 export const DEFAULT_CONFIG: Config = {
   theme: 'system',
   user: 'new',
+  userPageLists: cloneUserPageListsMap(DEFAULT_USER_PAGE_LISTS),
 }
 
 export const CONFIG_USER_DISPLAY_NAMES: Record<ConfigUser, string> = {
@@ -33,10 +77,33 @@ export function configUserPageTitle(user: ConfigUser): string {
   return `Hello, ${configUserDisplayName(user)}!`
 }
 
+export function parsePageList(text: string): string[] {
+  return text
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+}
+
+export function formatPageList(pages: string[]): string {
+  return pages.join(', ')
+}
+
+export function resetUserPageListField(
+  lists: UserPageLists,
+  user: ConfigUser,
+  field: PageListKey,
+): UserPageLists {
+  return {
+    ...lists,
+    [field]: [...DEFAULT_USER_PAGE_LISTS[user][field]],
+  }
+}
+
 const STORAGE_KEY = 'protowiki-prototype-user-config'
 
 const VALID_THEMES: ConfigTheme[] = ['light', 'dark', 'system']
 const VALID_USERS: ConfigUser[] = ['logged-out', 'new', 'experienced']
+const PAGE_LIST_KEYS: PageListKey[] = ['watchlist', 'readingList', 'editedPages']
 
 function isConfigTheme(value: unknown): value is ConfigTheme {
   return typeof value === 'string' && VALID_THEMES.includes(value as ConfigTheme)
@@ -46,27 +113,92 @@ function isConfigUser(value: unknown): value is ConfigUser {
   return typeof value === 'string' && VALID_USERS.includes(value as ConfigUser)
 }
 
+function cloneUserPageLists(lists: UserPageLists): UserPageLists {
+  return {
+    watchlist: [...lists.watchlist],
+    readingList: [...lists.readingList],
+    editedPages: [...lists.editedPages],
+  }
+}
+
+function cloneUserPageListsMap(
+  map: Record<ConfigUser, UserPageLists>,
+): Record<ConfigUser, UserPageLists> {
+  return {
+    'logged-out': cloneUserPageLists(map['logged-out']),
+    new: cloneUserPageLists(map.new),
+    experienced: cloneUserPageLists(map.experienced),
+  }
+}
+
+function parseStringArray(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null
+  return value.filter((item): item is string => typeof item === 'string')
+}
+
+function mergeUserPageLists(user: ConfigUser, stored: unknown): UserPageLists {
+  const defaults = DEFAULT_USER_PAGE_LISTS[user]
+  if (typeof stored !== 'object' || stored === null) {
+    return cloneUserPageLists(defaults)
+  }
+
+  const record = stored as Record<string, unknown>
+  const merged = { ...cloneUserPageLists(defaults) }
+
+  for (const key of PAGE_LIST_KEYS) {
+    const parsed = parseStringArray(record[key])
+    if (parsed !== null) {
+      merged[key] = parsed
+    }
+  }
+
+  return merged
+}
+
+function mergeUserPageListsMap(stored: unknown): Record<ConfigUser, UserPageLists> {
+  const base = cloneUserPageListsMap(DEFAULT_USER_PAGE_LISTS)
+  if (typeof stored !== 'object' || stored === null) {
+    return base
+  }
+
+  const record = stored as Record<string, unknown>
+  for (const user of VALID_USERS) {
+    base[user] = mergeUserPageLists(user, record[user])
+  }
+
+  return base
+}
+
 export function loadConfig(): Config {
   if (typeof window === 'undefined') {
-    return { ...DEFAULT_CONFIG }
+    return cloneConfig(DEFAULT_CONFIG)
   }
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return { ...DEFAULT_CONFIG }
+    if (!raw) return cloneConfig(DEFAULT_CONFIG)
 
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed !== 'object' || parsed === null) {
-      return { ...DEFAULT_CONFIG }
+      return cloneConfig(DEFAULT_CONFIG)
     }
 
     const record = parsed as Record<string, unknown>
     return {
       theme: isConfigTheme(record.theme) ? record.theme : DEFAULT_CONFIG.theme,
       user: isConfigUser(record.user) ? record.user : DEFAULT_CONFIG.user,
+      userPageLists: mergeUserPageListsMap(record.userPageLists),
     }
   } catch {
-    return { ...DEFAULT_CONFIG }
+    return cloneConfig(DEFAULT_CONFIG)
+  }
+}
+
+function cloneConfig(config: Config): Config {
+  return {
+    theme: config.theme,
+    user: config.user,
+    userPageLists: cloneUserPageListsMap(config.userPageLists),
   }
 }
 

@@ -9,15 +9,35 @@ definePage({
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { CdxButton, CdxCard, CdxIcon, CdxPopover, CdxSelect } from '@wikimedia/codex'
+import { CdxButton, CdxCard, CdxIcon, CdxPopover, CdxSelect, CdxTextInput } from '@wikimedia/codex'
 import { cdxIconSettings } from '@wikimedia/codex-icons'
 
 import PlainWrapper from '@/components/PlainWrapper.vue'
 import { useConfig } from '@/composables/useConfig'
-import { CONFIG_USER_MENU_ITEMS } from '@/lib/config'
+import { CONFIG_USER_MENU_ITEMS, formatPageList, parsePageList } from '@/lib/config'
 
 const router = useRouter()
-const { user } = useConfig()
+const {
+  user,
+  currentUserPageLists,
+  setCurrentUserPageList,
+  resetCurrentUserPageListField,
+} = useConfig()
+
+const watchlistText = computed({
+  get: () => formatPageList(currentUserPageLists.value.watchlist),
+  set: (value: string) => setCurrentUserPageList('watchlist', parsePageList(value)),
+})
+
+const readingListText = computed({
+  get: () => formatPageList(currentUserPageLists.value.readingList),
+  set: (value: string) => setCurrentUserPageList('readingList', parsePageList(value)),
+})
+
+const editedPagesText = computed({
+  get: () => formatPageList(currentUserPageLists.value.editedPages),
+  set: (value: string) => setCurrentUserPageList('editedPages', parsePageList(value)),
+})
 
 interface PrototypeMeta {
   title?: string
@@ -133,6 +153,42 @@ const settingsAnchor = ref<HTMLElement | null>(null)
               default-label="New editor"
             />
           </label>
+          <label class="prototype-index__settings-field">
+            <span class="prototype-index__settings-label">Watchlist</span>
+            <div class="prototype-index__settings-row">
+              <CdxTextInput v-model="watchlistText" class="prototype-index__settings-input" />
+              <CdxButton
+                weight="quiet"
+                @click="resetCurrentUserPageListField('watchlist')"
+              >
+                Reset
+              </CdxButton>
+            </div>
+          </label>
+          <label class="prototype-index__settings-field">
+            <span class="prototype-index__settings-label">Reading list</span>
+            <div class="prototype-index__settings-row">
+              <CdxTextInput v-model="readingListText" class="prototype-index__settings-input" />
+              <CdxButton
+                weight="quiet"
+                @click="resetCurrentUserPageListField('readingList')"
+              >
+                Reset
+              </CdxButton>
+            </div>
+          </label>
+          <label class="prototype-index__settings-field">
+            <span class="prototype-index__settings-label">Edited pages</span>
+            <div class="prototype-index__settings-row">
+              <CdxTextInput v-model="editedPagesText" class="prototype-index__settings-input" />
+              <CdxButton
+                weight="quiet"
+                @click="resetCurrentUserPageListField('editedPages')"
+              >
+                Reset
+              </CdxButton>
+            </div>
+          </label>
         </div>
       </CdxPopover>
     </template>
@@ -183,7 +239,18 @@ const settingsAnchor = ref<HTMLElement | null>(null)
   display: flex;
   flex-direction: column;
   gap: var(--spacing-100);
-  min-width: 12rem;
+  min-width: 22rem;
+}
+
+.prototype-index__settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-50);
+}
+
+.prototype-index__settings-input {
+  flex: 1;
+  min-width: 0;
 }
 
 .prototype-index__settings-field {
