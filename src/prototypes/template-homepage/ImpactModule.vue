@@ -37,7 +37,7 @@ interface Props {
   lastEdited?: string
   longestStreak?: string
   // Desktop (empty + filled)
-  thanksReceived?: number
+  thanksReceived?: number | string
   // Desktop filled only
   totalEdits?: number
   recentActivityData?: number[]

@@ -4,7 +4,7 @@
  * Data sources (all en.wikipedia.org unless noted):
  * - Total edits: Action API `list=users` → `editcount` (all namespaces, lifetime).
  * - Last edited / activity chart / longest streak: Action API `list=usercontribs` (article ns 0 only).
- * - Thanks received: stubbed at 0 (Thanks extension has no simple public count).
+ * - Thanks received: not fetched (no simple public count); UI shows "?".
  * - Per-article views: Wikimedia Analytics `metrics/pageviews/per-article` on wikimedia.org,
  *   summed from the user's last edit on that article through yesterday (UTC). Metrics lag ~1 day.
  * - Thumbnails: Action API `pageimages`, then REST `/page/summary/{title}` as fallback.
@@ -172,26 +172,6 @@ function formatViewCount(total: number): string {
   return total.toLocaleString()
 }
 
-async function fetchThanksReceived(username: string, signal?: AbortSignal): Promise<number> {
-  // Extension:Thanks — may be unavailable anonymously; default to 0.
-  try {
-    const url = actionUrl({
-      action: 'query',
-      list: 'thank',
-      thsource: username,
-      thlimit: '1',
-    })
-    const json = (await fetchJson(url, signal)) as {
-      query?: { thank?: unknown[] }
-    }
-    // Count not exposed in a simple list call; return 0 unless API adds count meta.
-    void json
-    return 0
-  } catch {
-    return 0
-  }
-}
-
 async function fetchPageviewsSince(
   title: string,
   sinceIso: string,
@@ -349,11 +329,6 @@ export async function fetchUserImpact(
 
   const editedPageTitles = [...titleToLatestEdit.keys()]
 
-  assertNotAborted(signal)
-  onProgress?.('thanks')
-
-  const thanksReceived = await fetchThanksReceived(username, signal)
-
   const titlesForPageviews = editedPageTitles.slice(0, MAX_PAGEVIEW_ARTICLES)
   const viewRows: { title: string; total: number; daily: number[] }[] = []
 
@@ -400,7 +375,7 @@ export async function fetchUserImpact(
 
   return {
     totalEdits,
-    thanksReceived,
+    thanksReceived: '?',
     lastEdited,
     longestStreak,
     recentActivityData,

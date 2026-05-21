@@ -14,7 +14,8 @@ export interface ImpactData {
   sparklineData?: number[]
   lastEdited?: string
   longestStreak?: string
-  thanksReceived?: number
+  /** Numeric when known; `"?"` when not available from live APIs. */
+  thanksReceived?: number | string
   totalEdits?: number
   recentActivityData?: number[]
   activityStartDate?: string
@@ -26,7 +27,6 @@ export interface ImpactData {
 }
 
 export const EMPTY_IMPACT_DATA: ImpactData = {
-  thanksReceived: 0,
   recentActivityData: [],
   mostViewed: [],
   sparklineData: [],
