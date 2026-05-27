@@ -1,0 +1,39 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-family-system-sans);
+  background-color: var(--background-color-interactive);
+  color: var(--color-base);
+}
+
+a {
+  color: var(--color-progressive);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#app {
+  height: 100%;
+  background-color: var(--background-color-base);
+}
+
+/*
+ * protowiki2's src/styles/global.css applies `box-sizing: border-box` to
+ * `*, *::before, *::after`. Codex's checkmark and radio dot are drawn as
+ * pseudo-elements that assume the spec default of `content-box`; under
+ * `border-box` the 2px borders eat into the content area and shift the
+ * shape toward the upper-right. Restore the default here so they render
+ * centered. (To be fixed upstream by narrowing the reset.)
+ */
+.cdx-checkbox__icon::before,
+.cdx-radio__icon::before {
+  box-sizing: content-box;
+}
