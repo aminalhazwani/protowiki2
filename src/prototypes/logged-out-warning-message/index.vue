@@ -9,19 +9,22 @@ definePage({
 
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-// Served verbatim via Vite's ?url suffix (bypasses HTML-entry processing) so
-// the saved-Wikipedia page + its relative assets load untouched, all from
-// inside this prototype folder.
-import v1Url from './app/v1.html?url'
-import v2Url from './app/v2.html?url'
-import v3Url from './app/v3.html?url'
 
+/**
+ * The prototype's static files live in ./app/ (this folder). They're served
+ * verbatim — no Vite HTML transform — via a symlink at
+ * `public/logged-out-warning-message` → this folder's `app/`. That's required
+ * because the saved Wikipedia page relies on its own importmap + runtime Vue
+ * template compilation, which Vite's dev transform would break, and because a
+ * production `vite build` only copies verbatim asset trees from publicDir.
+ * The only thing outside this folder is that one symlink pointer.
+ */
 const route = useRoute()
+const base = import.meta.env.BASE_URL
 const src = computed(() => {
   const v = route.query.variant
-  if (v === 'v2') return v2Url
-  if (v === 'v3') return v3Url
-  return v1Url
+  const file = v === 'v2' ? 'v2.html' : v === 'v3' ? 'v3.html' : 'v1.html'
+  return `${base}logged-out-warning-message/${file}`
 })
 </script>
 
