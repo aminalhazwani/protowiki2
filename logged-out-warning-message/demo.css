@@ -1,0 +1,266 @@
+.demo-banner-container {
+    display: flex;
+    background-color: #e8eeff;
+    padding: 4px 12px;
+    font-size: 14px;
+    line-height: 22px;
+    overflow: hidden;
+    opacity: 1;
+    transform: translateY(-78px);
+}
+
+.local-ve-overlay[data-shell-visible="true"] .demo-banner-container {
+    animation: demo-banner-slide-in 0.25s ease-out forwards;
+}
+
+@keyframes demo-banner-slide-in {
+    0% {
+        transform: translateY(-78px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.demo-links-container {
+    flex-grow: 1;
+}
+
+.demo-banner-link {
+    color: #36c!important;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.demo-banner-dismiss {
+    color: #202122!important;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* UI Control Button - Only positioning needed, Codex handles the rest */
+.ui-control-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 999999;
+}
+
+/* Codex Dialog z-index override to appear above local-ve-overlay (z-index: 99999) and toolbar (z-index: 100001) */
+/* The dialog backdrop and dialog itself need higher z-index */
+.cdx-dialog,
+[class*="cdx-dialog"] {
+    z-index: 100002 !important;
+}
+
+/* Specifically target the dialog container that Vue creates */
+#publish-dialog-container {
+    z-index: 100002 !important;
+    position: relative;
+}
+
+/* Ensure the dialog backdrop (if it exists) is also above */
+.cdx-dialog__backdrop,
+[class*="cdx-dialog__backdrop"] {
+    z-index: 100001 !important;
+}
+
+/* Use system fonts for all text inside the publish dialog */
+.cdx-dialog__body,
+#publish-dialog-container,
+#publish-dialog-container *,
+#publish-dialog-container .cdx-dialog,
+#publish-dialog-container .cdx-dialog * {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+}
+
+/* OOUI Styles for publish dialog */
+.ooui-dialog-overlay {
+    z-index: 100003 !important;
+}
+
+.oo-ui-window-content {
+    background-color: white;
+}
+
+.ve-ui-mwSaveDialog-summaryLabel {
+    padding: 0.25em 0;
+}
+
+.ve-ui-mwSaveDialog-options {
+    display: none;
+}
+
+#editpage-copywarn {
+    font-size: 0.9em;
+    line-height: 1.4em;
+    padding: 0;
+    margin: 0;
+    color: var(--color-subtle, #54595d);
+}
+
+.oo-ui-tool.oo-ui-widget-enabled > .oo-ui-tool-link:hover {
+    background-color: rgba(0, 0, 0, 0.05)!important;
+}
+
+[data-variant="v3"] .local-ve-toolbar-clone {
+    background-color: var(--background-color-progressive-subtle, rgba(54, 204, 255, 0.1));
+    mix-blend-mode: multiply;
+}
+
+[data-variant="v3"] .local-ve-toolbar-clone-container-overlay {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    height: 48px;
+}
+
+#local-ve-overlay[data-variant="v3"].banner-dismissed .local-ve-shell .local-ve-toolbar-clone-container-overlay {
+    display: none;
+}
+
+[data-variant="v3"] .local-ve-toolbar-clone-container-overlay::before {
+    content: " ";
+    background-color: var(--background-color-progressive-subtle, rgba(54, 204, 255, 0.1));
+    mix-blend-mode: multiply;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+}
+
+
+/* Variant-specific styles */
+
+/* v2: Banner at top: 0, left: 0, toolbar positioned below banner */
+[data-variant="v2"] .local-ve-toolbar-clone-container {
+    transform: translateY(-48px) !important;
+}
+
+[data-variant="v2"] .local-ve-toolbar-clone-container.show {
+    transform: translateY(30px) !important;
+	transition: transform 0.25s ease-out;
+}
+
+[data-variant="v2"] .demo-banner-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 100002 !important;
+    display: flex !important;
+    opacity: 1 !important;
+    transform: translateY(-78px) !important;
+    margin-top: 0 !important;
+}
+
+[data-variant="v2"] .demo-banner-container.show {
+    transform: translateY(0) !important;
+	transition: transform 0.25s ease-out;
+}
+
+[data-variant="v2"] .local-ve-shell {
+	height: calc(100% - 30px);
+	padding-top: 30px;
+}
+
+/* v2: When banner is dismissed, restore shell to full height */
+[data-variant="v2"].banner-dismissed .local-ve-shell {
+	height: 100%;
+	padding-top: 0;
+}
+
+/* v3: Banner at top: 0, left: 0, toolbar positioned below banner */
+/* Banner height: 4px (top padding) + 22px (line-height) + 4px (bottom padding) = 30px */
+[data-variant="v3"] .local-ve-toolbar-clone-container {
+    transform: translateY(-48px) !important;
+}
+
+[data-variant="v3"] .local-ve-toolbar-clone-container.show {
+    transform: translateY(30px) !important;
+}
+
+[data-variant="v3"] .demo-banner-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 100002 !important;
+    display: flex !important;
+    opacity: 1 !important;
+    transform: translateY(-78px) !important;
+    margin-top: 0 !important;
+}
+
+[data-variant="v3"] .demo-banner-container.show {
+    transform: translateY(0) !important;
+	transition: transform 0.25s ease-out;
+}
+
+[data-variant="v3"] .local-ve-shell {
+	height: calc(100% - 30px);
+	padding-top: 30px;
+}
+
+/* v3: When banner is dismissed, restore shell to full height */
+[data-variant="v3"].banner-dismissed .local-ve-shell {
+	height: 100%;
+	padding-top: 0;
+}
+
+/* v3: Add background color or overlay with multiply filter to overlay-header */
+/* Option 1: Direct background color using Codex variable */
+[data-variant="v3"] .local-ve-overlay .overlay-header {
+	background-color: var(--background-color-progressive-subtle, rgba(54, 204, 255, 0.1));
+}
+
+/* Option 2: Overlay layer with multiply filter (alternative approach) */
+/* Uncomment this if you prefer the multiply overlay approach instead */
+/*
+[data-variant="v3"] .local-ve-overlay .overlay-header {
+	position: relative;
+}
+
+[data-variant="v3"] .local-ve-overlay .overlay-header::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--background-color-progressive-subtle, rgba(54, 204, 255, 0.1));
+	mix-blend-mode: multiply;
+	pointer-events: none;
+	z-index: 0;
+}
+
+[data-variant="v3"] .local-ve-overlay .overlay-header > * {
+	position: relative;
+	z-index: 1;
+}
+*/
+
+/* v3: Also apply to banner container if desired */
+[data-variant="v3"] .demo-banner-container {
+	background-color: var(--background-color-progressive-subtle, rgba(54, 204, 255, 0.1));
+}
+
+/* v3: Apply multiply blend mode to overlay-header */
+[data-variant="v3"] .overlay-header-container {
+    position: relative;
+}
+
+[data-variant="v3"] .overlay-header-container::before {
+    content: " ";
+    background-color: var(--background-color-progressive-subtle, rgba(54, 204, 255, 0.1));
+    mix-blend-mode: multiply;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+}
