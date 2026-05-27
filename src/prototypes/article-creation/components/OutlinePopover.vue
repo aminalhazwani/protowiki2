@@ -1,6 +1,12 @@
 <template>
   <div ref="anchorRef" class="outline-popover-anchor"></div>
-  <CdxPopover v-model:open="open" :anchor="anchorRef" placement="top-start" :render-in-place="true">
+  <CdxPopover
+    v-model:open="open"
+    :anchor="anchorRef"
+    placement="top-start"
+    :render-in-place="true"
+    class="outline-popover-sheet"
+  >
     <div class="outline-popover-header">
       <CdxMenuButton v-model:selected="selectedView" :menu-items="menuItems">
         <CdxIcon :icon="currentItem.icon" />
@@ -10,7 +16,7 @@
         <CdxIcon :icon="icons.cdxIconClose" />
       </CdxButton>
     </div>
-    <div class="outline-popover-body">
+    <div ref="bodyRef" class="outline-popover-body" tabindex="-1">
       <OutlineAccordionList
         v-if="selectedView === 'outline'"
         @content-inserted="$emit('content-inserted')"
@@ -46,6 +52,7 @@ const props = defineProps({
 })
 const open = defineModel('open', { type: Boolean, default: false })
 const anchorRef = ref(null)
+const bodyRef = ref(null)
 const selectedView = ref('outline')
 
 watch(open, (isOpen) => {
@@ -116,6 +123,31 @@ function detachObserver() {
   bodyEl = null
 }
 
+// Codex 2.5.1's CdxPopover focus-trap calls focusFirst() on open, which lands
+// on the view-switcher menu button and shows a focus ring as if it were
+// pre-selected. There's no prop to disable it, and the focus is set without a
+// focusin event we can intercept, so we poll for a short window after open and
+// redirect focus off the menu-button trigger onto the non-interactive popover
+// body (tabindex="-1", no focus ring). Polling (rather than a one-shot blur)
+// is robust to however many frames Codex takes to set focus. The window is
+// short enough that a deliberate later click on the menu button is unaffected.
+let suppressFocusRaf = 0
+
+function suppressInitialMenuFocus() {
+  cancelAnimationFrame(suppressFocusRaf)
+  let frames = 0
+  const tick = () => {
+    const active = document.activeElement
+    if (active?.closest?.('.outline-popover-sheet .cdx-menu-button') && bodyRef.value) {
+      bodyRef.value.focus()
+    }
+    if (++frames < 40) {
+      suppressFocusRaf = requestAnimationFrame(tick)
+    }
+  }
+  suppressFocusRaf = requestAnimationFrame(tick)
+}
+
 watch(selectedView, async () => {
   if (bodyEl) {
     await nextTick()
@@ -127,6 +159,7 @@ watch(selectedView, async () => {
 
 watch(open, async (isOpen) => {
   if (isOpen) {
+    suppressInitialMenuFocus()
     await nextTick()
     await nextTick()
     attachObserver()
@@ -174,6 +207,7 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+  outline: none;
   padding: var(--spacing-100, 16px) var(--spacing-100, 16px) 0;
   border-top: 1px solid var(--border-color-transparent);
   transition-property: var(--transition-property-base);
@@ -190,14 +224,22 @@ onBeforeUnmount(() => {
   border-top: 1px solid var(--border-color-subtle, #c8ccd1);
 }
 
-.outline-popover-anchor + :deep(.cdx-popover .cdx-popover__body) {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+.outline-popover-body :deep(.cdx-accordion__content) {
+  font-family: var(--font-family-system-sans);
 }
+</style>
 
-.outline-popover-anchor + :deep(.cdx-popover) {
+<!--
+  Bottom-sheet styling for the popover root. This lives in a NON-scoped block
+  (keyed on the `outline-popover-sheet` class we pass to <CdxPopover>) because
+  Codex 2.5.1 renders the popover wrapped in `.cdx-popover__backdrop` inside the
+  nearest positioned ancestor — it is NOT an adjacent sibling of the anchor and
+  carries no scoped data-v attribute, so the original
+  `.outline-popover-anchor + :deep(.cdx-popover)` selector never matched here.
+  `!important` overrides @floating-ui's inline positioning styles.
+-->
+<style>
+.cdx-popover.outline-popover-sheet {
   min-height: 50vh !important;
   max-height: 50vh !important;
   display: flex;
@@ -215,7 +257,10 @@ onBeforeUnmount(() => {
   padding: 0 !important;
 }
 
-.outline-popover-body :deep(.cdx-accordion__content) {
-  font-family: var(--font-family-system-sans);
+.cdx-popover.outline-popover-sheet .cdx-popover__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 </style>
