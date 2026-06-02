@@ -109,12 +109,42 @@ function enhanceMobileSectionHeadings(root: HTMLElement) {
   })
 }
 
+function enhanceMobileLeadInfoboxOrder(root: HTMLElement) {
+  root.querySelectorAll<HTMLElement>("section[data-mw-section-id='0']").forEach((section) => {
+    const infobox = section.querySelector<HTMLElement>(':scope > table.infobox')
+    if (!infobox) return
+
+    let firstLeadBlock: HTMLElement | null = null
+    let candidate = infobox.nextElementSibling as HTMLElement | null
+    while (candidate) {
+      const tag = candidate.tagName
+      const isLeadBlock = tag === 'P' || tag === 'UL' || tag === 'OL'
+      const hasReadableText = (candidate.textContent ?? '').trim().length > 0
+      const isEmptyElt = candidate.classList.contains('mw-empty-elt')
+
+      if (isLeadBlock && hasReadableText && !isEmptyElt) {
+        firstLeadBlock = candidate
+        break
+      }
+
+      candidate = candidate.nextElementSibling as HTMLElement | null
+    }
+
+    if (!firstLeadBlock) return
+
+    if (firstLeadBlock.nextElementSibling !== infobox) {
+      firstLeadBlock.insertAdjacentElement('afterend', infobox)
+    }
+  })
+}
+
 async function applyMobileEnhancements() {
   await nextTick()
   if (effectiveSkin.value !== 'mobile') return
   const root = mwParserOutputRef.value
   if (!root) return
   enhanceMobileSectionHeadings(root)
+  enhanceMobileLeadInfoboxOrder(root)
 }
 
 watch(
@@ -323,32 +353,8 @@ onUpdated(() => {
 }
 
 /*
- * Lead vs infobox order: Parsoid usually emits `table.infobox` before the lead
- * `<p>` blocks inside `section[data-mw-section-id="0"]`. Mobile Wikipedia shows
- * the lead first — flex `order` stacks lead above the infobox. Hand-authored prototypes
- * opt in with `section.hand-authored-lead` (see `template-article-custom` prototype).
+ * Lead vs infobox order on mobile:
+ * `applyMobileEnhancements()` repositions section-0 infoboxes in the DOM so they
+ * render directly after the first real lead prose block (skipping empty utility nodes).
  */
-.article[data-skin='mobile'] .mw-parser-output section[data-mw-section-id='0'],
-.article[data-skin='mobile'] .mw-parser-output section.hand-authored-lead {
-  display: flex;
-  flex-direction: column;
-}
-
-.article[data-skin='mobile'] .mw-parser-output section[data-mw-section-id='0'] > table.infobox,
-.article[data-skin='mobile'] .mw-parser-output section.hand-authored-lead > table.infobox {
-  order: 2;
-}
-
-.article[data-skin='mobile']
-  .mw-parser-output
-  section[data-mw-section-id='0']
-  > table.infobox
-  ~ :where(p, ul, ol),
-.article[data-skin='mobile']
-  .mw-parser-output
-  section.hand-authored-lead
-  > table.infobox
-  ~ :where(p, ul, ol) {
-  order: 1;
-}
 </style>

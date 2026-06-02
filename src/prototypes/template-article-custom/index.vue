@@ -295,8 +295,4 @@ const leadPhotoUrl = `${import.meta.env.BASE_URL}images/wet-leg-o2-infobox.jpg`
 main {
   padding: 0 var(--spacing-100);
 }
-
-main :deep(.article[data-skin='mobile'] .mw-parser-output section.hand-authored-lead > table.infobox ~ :where(p, ul, ol)) {
-  order: 3;
-}
 </style>
