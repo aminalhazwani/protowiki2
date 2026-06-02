@@ -20,6 +20,20 @@ const leadPhotoUrl = `${import.meta.env.BASE_URL}images/wet-leg-o2-infobox.jpg`
     <main>
       <ArticleCustom>
         <section class="hand-authored-lead">
+          <p>
+            <em>For their eponymous album, see</em>&nbsp;<a
+              href="https://en.wikipedia.org/wiki/Wet_Leg_(album)"
+              ><em>Wet Leg</em> (album)</a
+            >.
+          </p>
+
+          <p>
+            <strong>Wet Leg</strong> are an English indie rock band from the Isle of Wight, founded
+            in 2019 by Rhian Teasdale (vocals, guitar) and Hester Chambers (guitar). The band also
+            includes Josh Mobaraki (guitar, keyboards), Ellis Durand (bass) and Henry Holmes
+            (drums).
+          </p>
+
           <table class="infobox vcard plainlist">
             <tbody>
               <tr>
@@ -132,20 +146,6 @@ const leadPhotoUrl = `${import.meta.env.BASE_URL}images/wet-leg-o2-infobox.jpg`
               </tr>
             </tbody>
           </table>
-
-          <p>
-            <em>For their eponymous album, see</em>&nbsp;<a
-              href="https://en.wikipedia.org/wiki/Wet_Leg_(album)"
-              ><em>Wet Leg</em> (album)</a
-            >.
-          </p>
-
-          <p>
-            <strong>Wet Leg</strong> are an English indie rock band from the Isle of Wight, founded
-            in 2019 by Rhian Teasdale (vocals, guitar) and Hester Chambers (guitar). The band also
-            includes Josh Mobaraki (guitar, keyboards), Ellis Durand (bass) and Henry Holmes
-            (drums).
-          </p>
 
           <p>
             Initially a duo, Teasdale and Chambers debuted with the single &ldquo;Chaise
@@ -294,5 +294,9 @@ const leadPhotoUrl = `${import.meta.env.BASE_URL}images/wet-leg-o2-infobox.jpg`
 <style scoped>
 main {
   padding: 0 var(--spacing-100);
+}
+
+main :deep(.article[data-skin='mobile'] .mw-parser-output section.hand-authored-lead > table.infobox ~ :where(p, ul, ol)) {
+  order: 3;
 }
 </style>
