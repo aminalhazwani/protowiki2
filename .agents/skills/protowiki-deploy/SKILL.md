@@ -82,8 +82,10 @@ Do **not** use the Pages option labeled **“GitHub Actions”** for this repo �
 previews deploy to the `gh-pages` branch via
 [`rossjrw/pr-preview-action`](https://github.com/rossjrw/pr-preview-action).
 
-After the first successful `deploy.yml` run on `main`, the `gh-pages` branch
-exists; then switch Pages to deploy from that branch.
+**Order for a new repo:** enable Actions permissions → push (or merge) to
+`main` once so `deploy.yml` creates `gh-pages` → set Pages to **Deploy from a
+branch** as above. Until `gh-pages` exists, that branch will not appear in the
+Pages dropdown.
 
 ## Production deploy
 
@@ -134,6 +136,10 @@ server-side SPA rewrite on GitHub Pages).
 Use this three-way decision:
 
 1. **Template/new repo (default):**
+   - If the user does **not** have write access to `wikimedia/ProtoWiki`, tell
+     them to click **Use this template** on `wikimedia/ProtoWiki` (instead of
+     creating a brand-new repo from scratch).
+   - Ask for the URL of their template copy, then deploy there.
    - Push to `main` for production deploy.
    - For preview links, push your changes to a **separate branch** and open a
      pull request from that branch to `main` in the same repo
@@ -153,22 +159,65 @@ At deploy time, always declare capability mode first:
 
 Then run:
 
-1. Confirm destination repo (`your copy` by default; upstream only if requested and permitted).
-2. Confirm deploy intent:
+1. Find the current state:
+   - Does the user have write access to `wikimedia/ProtoWiki`?
+   - If not, are they already in a template copy repo?
+2. Confirm destination repo (`your copy` by default; upstream only if requested and permitted).
+   - If the user lacks upstream write access and has no copy yet, instruct them
+     to create one via **Use this template** on `wikimedia/ProtoWiki`, then ask
+     for that repo URL and proceed there.
+   - Prefer this route over asking users to create/configure a brand-new repo manually.
+3. Confirm deploy intent:
    - `main` push for production update, or
    - separate branch + pull request for preview.
    - Never use a direct `main` push when the user asked for a preview link.
-3. Check prerequisites:
+4. Check prerequisites:
    - repo exists,
    - Actions workflow permissions are read/write,
-   - Pages source is `gh-pages` branch root.
-4. Execute (automated) or provide one copy/paste command block at a time (guided).
-5. Return final URL(s): production and/or PR preview.
+   - Pages source is **Deploy from a branch** → `gh-pages` / **/ (root)** (not
+     “GitHub Actions”).
+5. Execute (automated) or provide one copy/paste command block at a time (guided).
+6. Return final URL(s): production and/or PR preview.
+
+**When guiding users, include the one-time setup** (below) if any of these apply:
+the repo was not created from the ProtoWiki template, the user has never deployed before, Pages is
+still on the default source, workflows succeed but the public URL 404s, or PR
+preview comments appear but preview URLs 404. Skip repeating it once the user
+confirms Pages already uses `gh-pages` at root.
+
+### Guided mode: one-time GitHub setup (give users these steps)
+
+Use plain language. One step at a time; ask the user to confirm before the next.
+
+1. **Workflow permissions** — In the repo on GitHub: **Settings** → **Actions**
+   → **General** → **Workflow permissions** → choose **Read and write
+   permissions** → **Save**.
+2. **First production deploy** — Push or merge to `main` (or walk them through
+   their first commit to `main`). In **Actions**, wait until **Deploy to GitHub
+   Pages** finishes successfully. That run creates the `gh-pages` branch.
+3. **GitHub Pages source** — **Settings** → **Pages**:
+   - Under **Build and deployment**, **Source**: **Deploy from a branch** (not
+     “GitHub Actions”).
+   - **Branch**: `gh-pages`, folder **/ (root)** → **Save**.
+   - If `gh-pages` is missing, go back to step 2 and wait for the workflow.
+4. **Check the live site** — Open
+   `https://<username>.github.io/<repo-name>/` (match repo name casing). It can
+   take a minute after saving Pages settings.
+
+**Do not** tell users to pick **GitHub Actions** as the Pages source — CI still
+writes files to `gh-pages`; previews depend on that branch layout.
+
+For pull request previews, the same Pages setup applies; after step 3, open a
+pull request and use the preview link from the bot comment (under
+`…/pr-preview/pr-<number>/`).
 
 ### Guided mode communication style (non-technical users)
 
 When guiding designers/PMs, prefer plain language over Git jargon:
 
+- On first deploy (or if the site 404s after a green workflow), walk through
+  [Guided mode: one-time GitHub setup](#guided-mode-one-time-github-setup-give-users-these-steps)
+  before debugging build flags or base paths.
 - Say "your project copy" instead of "fork/upstream remote" unless needed.
 - Say "make a new branch to test an idea" instead of "create a feature branch".
 - Always say "pull request" in full (do not shorten to "PR").
