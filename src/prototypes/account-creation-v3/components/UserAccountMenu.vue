@@ -1,0 +1,122 @@
+<template>
+  <div class="user-account-menu">
+    <CdxButton
+      weight="quiet"
+      size="large"
+      aria-label="User account"
+      aria-haspopup="true"
+      :aria-expanded="open"
+      class="header-button"
+      @click="toggle"
+    >
+      <CdxIcon :icon="cdxIconUserAvatarOutline" />
+    </CdxButton>
+
+    <Transition name="user-menu">
+      <div v-if="open" class="user-account-menu__dropdown" role="menu">
+        <a href="#" class="user-account-menu__item" role="menuitem" @click.prevent="onCreateAccount">
+          <CdxIcon :icon="cdxIconUserAvatar" class="user-account-menu__item-icon" />
+          <span>Create account</span>
+        </a>
+        <a href="#" class="user-account-menu__item" role="menuitem" @click.prevent="open = false">
+          <CdxIcon :icon="cdxIconLogIn" class="user-account-menu__item-icon" />
+          <span>Log in</span>
+        </a>
+      </div>
+    </Transition>
+
+    <!-- Backdrop to close on outside click -->
+    <div v-if="open" class="user-account-menu__backdrop" @click="open = false" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { CdxButton, CdxIcon } from '@wikimedia/codex'
+import { cdxIconUserAvatar, cdxIconUserAvatarOutline, cdxIconLogIn } from '@wikimedia/codex-icons'
+
+const emit = defineEmits<{
+  'create-account': []
+}>()
+
+const open = ref(false)
+
+function toggle() {
+  open.value = !open.value
+}
+
+function onCreateAccount() {
+  open.value = false
+  emit('create-account')
+}
+</script>
+
+<style scoped>
+.header-button {
+  color: var(--color-subtle, #54595d);
+}
+
+.user-account-menu {
+  position: relative;
+}
+
+.user-account-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.user-account-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 100;
+  min-width: 200px;
+  background-color: var(--background-color-base, #fff);
+  border: 1px solid var(--border-color-subtle, #c8ccd1);
+  border-radius: var(--border-radius-base, 2px);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.user-account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-35, 6px);
+  padding: var(--spacing-75, 12px) var(--spacing-100, 16px);
+  color: var(--color-subtle, #54595d);
+  text-decoration: none;
+  font-size: var(--font-size-medium, 1rem);
+  font-weight: var(--font-weight-bold, 700);
+  line-height: var(--line-height-medium, 1.6);
+  cursor: pointer;
+  transition: background-color 100ms;
+}
+
+.user-account-menu__item:hover {
+  background-color: var(--background-color-interactive, #eaecf0);
+}
+
+.user-account-menu__item:not(:last-child) {
+  border: none;
+}
+
+.user-account-menu__item-icon {
+  color: var(--color-subtle, #54595d);
+  flex-shrink: 0;
+}
+
+/* Transition */
+.user-menu-enter-active,
+.user-menu-leave-active {
+  transition:
+    opacity 150ms,
+    transform 150ms;
+}
+
+.user-menu-enter-from,
+.user-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>

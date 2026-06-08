@@ -1,0 +1,180 @@
+/**
+ * Patches for Parsoid HTML + Minerva RL that are still missing after
+ * `npm run snapshot:wiki-skins`.
+ *
+ * Mobile hatnote strip: Minerva applies a full-width neutral band + borders on
+ * en.m.wikipedia; RL CSS alone does not, while inline Module:Hatnote styles
+ * keep the desktop `padding-left: 1.6em` gutter.
+ *
+ * No border-top — ArticleHeader’s icon toolbar already draws the divider above;
+ * duplicating it stacks two hairlines.
+ */
+
+.article-content[data-skin='mobile'] .mw-parser-output div.hatnote {
+  box-sizing: border-box;
+  margin-top: 0;
+  margin-bottom: 0 !important;
+  padding: var(--spacing-50, 8px) var(--spacing-100, 16px) !important;
+  border-top: none;
+  border-bottom: 1px solid var(--border-color-muted, var(--border-color-subtle));
+  background-color: var(--background-color-neutral-subtle);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small, 1.4);
+}
+
+/*
+ * Inline Hatnote TemplateStyles set `.hatnote i { font-style: normal }`
+ * (those <style> tags are inserted after head stylesheets). Match mobile-web:
+ * full line reads as italic, including linked album title.
+ */
+.article-content[data-skin='mobile'] .mw-parser-output div.hatnote i {
+  font-style: italic !important;
+}
+
+/*
+ * Parsoid often inserts `<p class="mw-empty-elt">` after the hatnote (invisible
+ * maintenance templates). It still picks up default paragraph margins / line box
+ * — remove it from layout so the lead / infobox sits flush under the strip.
+ */
+.article-content[data-skin='mobile'] .mw-parser-output div.hatnote + p.mw-empty-elt {
+  display: none;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output div.hatnote:has(+ p.mw-empty-elt) {
+  margin-bottom: 0 !important;
+}
+
+/* Ambox compact treatment — mirrors skins.minerva.base.styles (unavailable from RL)
+ * + MinervaPageIssuesParser JS (not running in prototype).
+ * Source: ~/Downloads/element.css */
+.article-content[data-skin='mobile'] .mw-parser-output .ambox,
+.article-content[data-skin='mobile'] .mw-parser-output table.ambox {
+  display: block;
+  margin: 0;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox {
+  cursor: pointer;
+  width: auto;
+  color: var(--color-subtle, #54595d);
+  margin-bottom: 1px;
+  background: var(--background-color-interactive-subtle, #f8f9fa) !important;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox tbody {
+  display: table;
+  width: 100%;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .mbox-text-div,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .mbox-text-span {
+  display: block;
+  max-height: 3.3em;
+  height: 3.3em;
+  overflow: hidden;
+  line-height: 21.45px;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox div {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox td,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox div.mbox-text {
+  position: relative;
+  padding: 8px 8px 8px 32px !important;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox td > div,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox div.mbox-text > div,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox td > span,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox div.mbox-text > span {
+  font-size: 0.8125rem;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox b { font-weight: inherit; }
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox a {
+  color: inherit !important;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox a:hover,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox a:focus {
+  text-decoration: none;
+  outline: inherit;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox small,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .hide-when-compact,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .mw-collapsible-content,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .mbox-empty-cell,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox hr,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .verbose,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox table,
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .mbox-image {
+  display: none;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .minerva-ambox-icon {
+  position: absolute;
+  left: 8px;
+  top: 11px;
+  min-width: 10px;
+  min-height: 10px;
+  width: calc(var(--font-size-medium, 1rem) + 4px);
+  height: calc(var(--font-size-medium, 1rem) + 4px);
+  display: inline-block;
+  background-color: #ff5d01;
+  mask-image: url(https://en.wikipedia.org/w/skins/MinervaNeue/resources/skins.minerva.scripts/page-issues/images/icon-issue-severity-medium.svg);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: calc(max(calc(var(--font-size-medium, 1rem) + 4px), 10px));
+  -webkit-mask-image: url(https://en.wikipedia.org/w/skins/MinervaNeue/resources/skins.minerva.scripts/page-issues/images/icon-issue-severity-medium.svg);
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: calc(max(calc(var(--font-size-medium, 1rem) + 4px), 10px));
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .ambox-learn-more {
+  color: var(--color-progressive, #36c);
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 0;
+  line-height: 1.65;
+}
+
+.article-content[data-skin='mobile'] .mw-parser-output .ambox .ambox-learn-more::before {
+  content: '';
+  position: absolute;
+  z-index: -100;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: content-box;
+  padding-left: 4em;
+  background: linear-gradient(to right, transparent 0, var(--background-color-interactive-subtle, #f8f9fa) 3em);
+}
+
+@media screen and (min-width: 640px) {
+  .article-content[data-skin='mobile'] .mw-parser-output .ambox .mbox-text-div,
+  .article-content[data-skin='mobile'] .mw-parser-output .ambox .mbox-text-span {
+    height: auto;
+    margin-bottom: 24px !important;
+  }
+
+  .article-content[data-skin='mobile'] .mw-parser-output .ambox .ambox-learn-more {
+    left: 32px;
+    right: 0;
+    background: none;
+  }
+
+  .article-content[data-skin='mobile'] .mw-parser-output .ambox .ambox-learn-more::before {
+    top: -1.65em;
+    width: 10px;
+  }
+}
