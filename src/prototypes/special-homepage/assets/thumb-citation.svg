@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Album artwork placeholder">
+  <rect width="80" height="80" fill="#c8553d"/>
+  <circle cx="40" cy="40" r="16" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="3"/>
+  <circle cx="40" cy="40" r="3" fill="#fff"/>
+</svg>

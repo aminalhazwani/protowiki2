@@ -4,13 +4,14 @@ import { CdxButton, CdxCard, CdxField, CdxIcon, CdxMessage, CdxTextInput } from 
 import {
   cdxIconArrowNext,
   cdxIconArrowPrevious,
-  cdxIconLink,
   cdxIconMessage,
-  cdxIconReference,
 } from '@wikimedia/codex-icons'
 import ChromeWrapper from '@/components/chrome/ChromeWrapper.vue'
 import DashboardModule from '@/components/DashboardModule.vue'
 import MobileWrapper from '@/components/MobileWrapper.vue'
+import thumbCitation from './assets/thumb-citation.svg'
+import thumbLinks from './assets/thumb-links.svg'
+import thumbReference from './assets/thumb-reference.svg'
 
 definePage({
   meta: {
@@ -30,24 +31,26 @@ function toggleEmailField() {
   showEmailField.value = !showEmailField.value
 }
 
+// Thumbnails are local placeholder tiles — the real subjects' covers are
+// non-free, so we don't hotlink copyrighted artwork into the prototype.
 const SUGGESTIONS = [
   {
     id: 'citation',
-    icon: cdxIconReference,
+    thumbnail: thumbCitation,
     title: 'Complete the citation',
     description: 'Wet Leg • British indie rock band',
     supporting: 'Add the missing website.',
   },
   {
     id: 'links',
-    icon: cdxIconLink,
+    thumbnail: thumbLinks,
     title: 'Add links',
     description: 'Chaise Longue (song) • 2021 single by Wet Leg',
     supporting: 'Consider linking to Music video.',
   },
   {
     id: 'reference',
-    icon: cdxIconReference,
+    thumbnail: thumbReference,
     title: 'Add reference',
     description: 'Moisturizer (album) • 2025 studio album by Wet Leg',
     supporting: 'Help explain where this information is coming from.',
@@ -101,8 +104,8 @@ const SUGGESTIONS = [
           <CdxCard
             v-for="suggestion in SUGGESTIONS"
             :key="suggestion.id"
+            :thumbnail="{ url: suggestion.thumbnail }"
             force-thumbnail
-            :custom-placeholder-icon="suggestion.icon"
           >
             <template #title>{{ suggestion.title }}</template>
             <template #description>{{ suggestion.description }}</template>
