@@ -91,6 +91,12 @@ provide(PROTOWIKI_CHROME_THEME, effectiveTheme)
         <template v-if="$slots.menu" #menu>
           <slot name="menu" />
         </template>
+        <template v-if="$slots['mobile-notifications']" #mobile-notifications>
+          <slot name="mobile-notifications" />
+        </template>
+        <template v-if="$slots['mobile-user']" #mobile-user>
+          <slot name="mobile-user" />
+        </template>
       </ChromeHeader>
     </slot>
 

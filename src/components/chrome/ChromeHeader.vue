@@ -251,25 +251,29 @@ function navHas(tool: ChromeNavTool): boolean {
         >
           <CdxIcon :icon="cdxIconSearch" />
         </CdxButton>
-        <CdxButton
-          weight="quiet"
-          size="large"
-          aria-label="Notifications"
-        >
-          <CdxIcon :icon="cdxIconBell" />
-        </CdxButton>
-        <PrototypeUserSettingsPopover v-slot="{ toggle, open }">
+        <slot name="mobile-notifications">
           <CdxButton
-            class="chrome-header__mobile-user-btn"
             weight="quiet"
             size="large"
-            aria-label="Prototype user"
-            :aria-expanded="open"
-            @click="toggle"
+            aria-label="Notifications"
           >
-            <CdxIcon :icon="cdxIconUserAvatar" size="large" />
+            <CdxIcon :icon="cdxIconBell" />
           </CdxButton>
-        </PrototypeUserSettingsPopover>
+        </slot>
+        <slot name="mobile-user">
+          <PrototypeUserSettingsPopover v-slot="{ toggle, open }">
+            <CdxButton
+              class="chrome-header__mobile-user-btn"
+              weight="quiet"
+              size="large"
+              aria-label="Prototype user"
+              :aria-expanded="open"
+              @click="toggle"
+            >
+              <CdxIcon :icon="cdxIconUserAvatar" size="large" />
+            </CdxButton>
+          </PrototypeUserSettingsPopover>
+        </slot>
       </div>
     </nav>
   </header>
@@ -553,8 +557,11 @@ function navHas(tool: ChromeNavTool): boolean {
   margin-inline-start: auto;
 }
 
-/* Equal square touch targets for search, notifications, and user (Minerva parity). */
+/* Equal square touch targets for search, notifications, and user (Minerva parity).
+   `:slotted(...)` variants apply the same target to slot-provided overrides (e.g.
+   special-homepage swaps the notifications/user buttons via #mobile-* slots). */
 .chrome-header[data-skin='mobile'] .chrome-header__mobile-actions .cdx-button,
+.chrome-header[data-skin='mobile'] .chrome-header__mobile-actions :slotted(.cdx-button),
 .chrome-header[data-skin='mobile'] .chrome-header__mobile-user-btn {
   box-sizing: border-box;
   flex-shrink: 0;
@@ -570,7 +577,8 @@ function navHas(tool: ChromeNavTool): boolean {
   justify-content: center;
 }
 
-.chrome-header[data-skin='mobile'] .prototype-user-settings-popover {
+.chrome-header[data-skin='mobile'] .prototype-user-settings-popover,
+.chrome-header[data-skin='mobile'] .chrome-header__mobile-actions :slotted(.prototype-user-settings-popover) {
   width: var(--size-icon-large, 40px);
 }
 
