@@ -205,10 +205,10 @@
           </div>
         </div>
 
+        <div v-if="isFieldActive('password')" class="field-with-validation">
         <CdxField
-          v-if="isFieldActive('password')"
           :status="emailPasswordInstead ? 'default' : validation.password.status"
-          :messages="emailPasswordInstead ? {} : validation.password.messages"
+          :messages="{}"
         >
           <template #label>Password</template>
           <template v-if="!emailPasswordInstead && !settings.fields.password.behaviors.hideHelperText" #help-text>
@@ -236,11 +236,24 @@
             />
           </div>
         </CdxField>
+        <div
+          class="field-validation-area"
+          :class="{ active: !!passwordMessage }"
+        >
+          <Transition name="slide-down">
+            <div v-show="!!passwordMessage" class="username-check-progress">
+              <CdxMessage v-if="passwordMessage" :type="passwordMessage.type" :inline="true">
+                {{ passwordMessage.text }}
+              </CdxMessage>
+            </div>
+          </Transition>
+        </div>
+        </div>
 
+        <div v-if="isFieldActive('confirmPassword') && !emailPasswordInstead" class="field-with-validation">
         <CdxField
-          v-if="isFieldActive('confirmPassword') && !emailPasswordInstead"
           :status="validation.confirmPassword.status"
-          :messages="validation.confirmPassword.messages"
+          :messages="{}"
         >
           <template #label>Confirm password</template>
           <div
@@ -258,6 +271,19 @@
             />
           </div>
         </CdxField>
+        <div
+          class="field-validation-area"
+          :class="{ active: !!confirmPasswordMessage }"
+        >
+          <Transition name="slide-down">
+            <div v-show="!!confirmPasswordMessage" class="username-check-progress">
+              <CdxMessage v-if="confirmPasswordMessage" :type="confirmPasswordMessage.type" :inline="true">
+                {{ confirmPasswordMessage.text }}
+              </CdxMessage>
+            </div>
+          </Transition>
+        </div>
+        </div>
 
         <CdxField
           v-if="isFieldActive('email')"
@@ -606,6 +632,21 @@ const usernameMessage = computed(() => {
   return null
 })
 
+const passwordMessage = computed(() => {
+  if (emailPasswordInstead.value) return null
+  const m = validation.password.messages
+  if (m.error) return { type: 'error', text: m.error }
+  if (m.warning) return { type: 'warning', text: m.warning }
+  return null
+})
+
+const confirmPasswordMessage = computed(() => {
+  const m = validation.confirmPassword.messages
+  if (m.error) return { type: 'error', text: m.error }
+  if (m.warning) return { type: 'warning', text: m.warning }
+  return null
+})
+
 function onUsernameInput() {
   applyAutoCapitalize()
   usernameSuggested.value = false
@@ -777,6 +818,16 @@ function onFormSubmit() {
   margin-bottom: 0;
 }
 
+.field-with-validation {
+  margin-bottom: var(--spacing-150);
+  display: flex;
+  flex-direction: column;
+}
+
+.field-with-validation .cdx-field {
+  margin-bottom: 0;
+}
+
 .form-actions {
   margin-bottom: var(--spacing-100);
 }
@@ -827,6 +878,21 @@ function onFormSubmit() {
 }
 
 .username-validation-area > * {
+  grid-area: 1 / 1;
+}
+
+.field-validation-area {
+  display: grid;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 200ms ease-out;
+}
+
+.field-validation-area.active {
+  max-height: calc(var(--spacing-25) + var(--line-height-medium) * 3);
+}
+
+.field-validation-area > * {
   grid-area: 1 / 1;
 }
 
