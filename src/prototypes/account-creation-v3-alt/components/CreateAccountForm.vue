@@ -875,6 +875,10 @@ function onFormSubmit() {
 
 .username-validation-area.active {
   max-height: calc(var(--spacing-25) + var(--line-height-medium) * 3);
+  /* Reserve the taller "checking" spinner row height (margin-top + spinner row)
+     so swapping it for the shorter result message doesn't collapse the area
+     and shift the fields below by a few pixels. */
+  min-height: calc(var(--spacing-50) + var(--line-height-medium));
 }
 
 .username-validation-area > * {
